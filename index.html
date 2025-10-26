@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <link rel="stylesheet" href="login.css" />
+  </head>
+  <body>
+    <header class="header-container">
+      <div class="menu">
+        <div class="logo">
+          <img src="" alt="TCC logo" />
+          <h2>EduPlatform</h2>
+        </div>
+        <div id="toggle-nav">
+          <button>
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="2em"
+              height="2em"
+              fill="currentColor"
+              class="bi bi-list"
+              viewBox="0 0 16 16"
+            >
+              <path
+                fill-rule="evenodd"
+                d="M2.5 12a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5m0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5m0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5"
+              />
+            </svg>
+          </button>
+        </div>
+        <div class="nav-container">
+          <nav class="nav-bar">
+            <ul class="nav-links">
+              <li><a href="#">Courses</a></li>
+              <li><a href="#">About</a></li>
+              <li><a href="#">FAQ's</a></li>
+              <li><a href="#">Contact</a></li>
+            </ul>
+          </nav>
+        </div>
+      </div>
+    </header>
+    <main>
+      <div class="login-container">
+        <div class="ticket-entry">
+          <div class="input-area">
+            <h4>Submit a ticket</h4>
+            <input type="text" placeholder="Enter Ticket" style="width: 100%" />
+            <button style="margin-top: 1em">Enter</button>
+          </div>
+        </div>
+      </div>
+    </main>
+    <script>
+      // 1. Get references to the button and the navigation menu
+      const toggleNavDiv = document.getElementById("toggle-nav");
+      const menuButton = toggleNavDiv.querySelector("button");
+      const navContainer = document.querySelector(".nav-container");
+
+      // 2. State variable to prevent rapid clicks (The Cooldown)
+      let isTransitioning = false;
+      const clickInterval = 300; // 300 milliseconds
+
+      // 3. Define the main function to handle the menu toggle
+      function toggleMenu() {
+        // Stop execution if a transition is already in progress
+        if (isTransitioning) {
+          return;
+        }
+
+        // Set the flag to true to start the cooldown
+        isTransitioning = true;
+
+        // 4. Toggle the 'active' class on the navigation container
+        navContainer.classList.toggle("active");
+
+        // 5. Update the icon
+        const isNavOpen = navContainer.classList.contains("active");
+        const svgIcon = menuButton.querySelector("svg");
+
+        if (isNavOpen) {
+          // Open state icon (X)
+          svgIcon.innerHTML = `
+                <path fill-rule="evenodd" d="M13.854 2.146a.5.5 0 0 1 0 .708L8.707 8l5.147 5.146a.5.5 0 0 1-.708.708L8 8.707l-5.146 5.147a.5.5 0 0 1-.708-.708L7.293 8 2.146 2.854a.5.5 0 1 1 .708-.708L8 7.293l5.146-5.147a.5.5 0 0 1 .708 0z"/>
+            `;
+        } else {
+          // Closed state icon (Hamburger)
+          svgIcon.innerHTML = `
+                <path fill-rule="evenodd" d="M2.5 12a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5m0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5m0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5"/>
+            `;
+        }
+
+        // 6. Reset the flag after the click interval has passed (Cooldown ends)
+        setTimeout(() => {
+          isTransitioning = false;
+        }, clickInterval);
+      }
+
+      // 7. Attach the function to the button click event
+      menuButton.addEventListener("click", toggleMenu);
+    </script>
+  </body>
+</html>
