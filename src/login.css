@@ -1,5 +1,10 @@
+body {
+  /* Format: [color] [image] [repeat] [attachment] [position] / [size] */
+  background: url("../IMG/TCCBG.png") no-repeat fixed center center / cover;
+}
+
 .header-container {
-  background-color: aqua;
+  background-color: transparent;
   height: 20vh;
 }
 
@@ -9,7 +14,13 @@
   gap: 2rem;
   position: absolute;
   left: 2em;
-  top: 2em;
+  top: 1em;
+  margin-top: 0;
+}
+
+.imagelogo {
+  width: 5em;
+  height: 5em;
 }
 
 .menu {
@@ -22,32 +33,60 @@
 
 .nav-links {
   display: flex;
-  gap: 3rem;
+  gap: 1rem;
   list-style: none;
   align-items: center;
 }
 
 .nav-links li {
   margin-right: 5em;
+  background-color: rgba(32, 178, 171, 0.5);
+  width: 4rem;
+  text-align: center;
+  box-shadow: #333 0px 1px 2px;
+}
+
+.nav-links a {
+  text-decoration: none;
+  color: black;
+  font-size: 1.1rem;
+  font-weight: 300;
 }
 
 .nav-container {
-  background-color: lightseagreen;
+  background-color: rgba(32, 178, 171, 0.644);
   position: absolute;
-  top: 3em;
+  top: 1em;
   right: 2em;
+  position: fixed;
+  z-index: 2;
+  box-shadow: #333 0px 2px 6px;
+}
+/* Header codes ends here */
+
+.main-content {
+  /* Set min-height to allow content to flow naturally */
+  min-height: calc(90vh - 10vh); /* Fills the viewport below the 10vh header */
+  padding: 2rem 0;
+}
+
+.hero {
+  width: 100%;
+  height: 80vh;
 }
 
 .ticket-entry {
-  background-color: lightslategray;
-  margin-top: 5em;
+  background-color: rgba(173, 98, 27, 0.534);
+  margin-top: 1em;
   display: block;
   flex-direction: column;
   width: 40%;
   text-align: center;
   position: absolute;
   right: 5em;
-  height: 48vh;
+  top: 8em;
+  height: 60vh;
+  box-shadow: #333 0px 4px 8px;
 }
 
 .input-area {
@@ -56,6 +95,44 @@
   gap: 2rem;
   align-items: center;
   overflow: hidden;
+}
+
+.input-area h4 {
+  color: black;
+  font-size: 1.5rem;
+  font-weight: bold;
+  margin-bottom: 1rem;
+  padding: 1rem;
+  border: #000000 1px solid;
+  box-shadow: #333 0px 2px 4px;
+}
+
+.input-area #submitbtn {
+  background-color: transparent;
+  border: none;
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+}
+
+.Courses {
+  background-color: #f0f8ff; /* Light, inviting background for this section */
+  padding: 4rem 2rem; /* Generous padding */
+  text-align: center;
+  border-top: 1px solid #ddd;
+}
+
+.Courses h2 {
+  color: #333;
+  font-size: 2.2rem;
+  margin-bottom: 0.5rem;
+  font-weight: 700;
+}
+
+.Courses p {
+  color: #666;
+  font-size: 1.1rem;
+  max-width: 800px;
+  margin: 0 auto;
 }
 
 @media (max-width: 600px) {
@@ -72,7 +149,6 @@
     top: auto;
     right: auto;
     width: 100%; /* Make nav full width */
-    background-color: lightseagreen;
     padding: 1rem 0; /* Add some padding */
     display: none; /* Hide the nav by default on small screens */
   }
@@ -86,6 +162,8 @@
     position: absolute;
     top: 2em;
     right: 1em;
+    position: fixed;
+    z-index: 2;
   }
 
   /* ADD THIS TO YOUR @media (max-width: 600px) block in login.css */
@@ -93,7 +171,7 @@
   .nav-container.active {
     display: block; /* Overrides the default 'display: none;' to SHOW the menu */
     /* You may want to adjust positioning/z-index here if needed */
-    position: absolute;
+    position: fixed;
     top: 60px; /* Adjust this to sit below the header content */
     z-index: 1;
   }
@@ -149,11 +227,16 @@
     /* Make ticket section full-width and stack it */
     position: relative; /* Remove absolute positioning */
     width: 90%; /* Use most of the width with some margin */
+    top: 10%;
     right: auto;
     left: auto; /* Center it by setting 5% margin on each side */
-    margin-top: 2em; /* Reduce top margin */
+    margin-top: 0; /* Reduce top margin */
     height: auto; /* Let height adjust to content */
     padding: 1em; /* Add internal padding */
+  }
+
+  .hero {
+    margin-bottom: 20vh;
   }
 
   .input-area {
