@@ -103,6 +103,41 @@ html {
   height: 80vh;
 }
 
+.text1 {
+  position: absolute;
+  top: 10em;
+  left: 5em;
+  color: black;
+  z-index: 2;
+  background-color: rgba(32, 178, 171, 0.336);
+  width: 40vw;
+  height: 50vh;
+  box-shadow: #333 0px 4px 8px;
+  border-radius: 1em;
+}
+
+.t-container {
+  margin: 4rem 0 0 2rem;
+  display: flex;
+  flex-direction: column;
+  text-align: justify;
+  gap: 0.5rem;
+  padding: 1rem 2rem;
+}
+
+.t-container h1 {
+  font-size: 3.5rem;
+  font-weight: 800;
+  margin: 0;
+  text-decoration: rgba(173, 97, 27, 0.541) underline;
+}
+
+.t-container h2 {
+  font-size: 2rem;
+  font-weight: 600;
+  margin: 0;
+}
+
 /* Container for the main content to be positioned over the video */
 .content {
   /* Required to place content over the video */
@@ -241,7 +276,25 @@ html {
   margin: 0 auto;
 }
 
-@media (max-width: 600px) {
+.courses-list {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 4rem;
+  margin-top: 2rem;
+}
+
+.courses-list .course-item {
+  color: #3d3d3d;
+  background-color: #fff;
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  padding: 1.5rem;
+  width: 250px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+@media (max-width: 768px) {
   /* Make header and nav full width and stacked */
   .header-container {
     height: auto; /* Allow height to adjust to content */
@@ -286,6 +339,10 @@ html {
 
   .menu {
     justify-content: center; /* Center the menu items */
+  }
+
+  .text1 {
+    display: none;
   }
 
   #toggle-nav {

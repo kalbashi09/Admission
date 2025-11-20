@@ -81,7 +81,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // CRITICAL: Define the media query that determines "mobile view"
   // NOTE: Use the same width defined in your CSS media query (max-width: 600px)
-  const mobileMediaQuery = window.matchMedia("(max-width: 600px)");
+  const mobileMediaQuery = window.matchMedia("(max-width: 768px)");
 
   function handleSmartScroll() {
     if (!navContainerElement) {
