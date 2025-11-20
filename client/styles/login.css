@@ -173,6 +173,28 @@ html {
   transform: translate(-50%, -50%);
 }
 
+.t-container {
+  margin: 4rem 0 0 2rem;
+  display: flex;
+  flex-direction: column;
+  text-align: justify;
+  gap: 0.5rem;
+  padding: 1rem 2rem;
+}
+
+.t-container h1 {
+  font-size: 3.5rem;
+  font-weight: 800;
+  margin: 0;
+  text-decoration: rgba(173, 97, 27, 0.541) underline;
+}
+
+.t-container h2 {
+  font-size: 2rem;
+  font-weight: 600;
+  margin: 0;
+}
+
 .ticket-entry {
   background-color: #ffffff62;
   margin-top: 1em;
@@ -294,28 +316,41 @@ html {
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
 }
 
-.t-container {
-  margin: 4rem 0 0 2rem;
-  display: flex;
-  flex-direction: column;
-  text-align: justify;
-  gap: 0.5rem;
-  padding: 1rem 2rem;
+/* --- ABOUT SECTION (Dark Blue to contrast with the white Courses) --- */
+#about {
+  background-color: #0e2f56; /* School Navy Blue */
+  color: #ffffff; /* White Text */
+  padding: 60px 20px; /* Adds breathing room top/bottom */
+  text-align: center;
 }
 
-.t-container h1 {
-  font-size: 3.5rem;
-  font-weight: 800;
-  margin: 0;
-  text-decoration: rgba(173, 97, 27, 0.541) underline;
+/* --- FAQ SECTION (Light Grey for readability) --- */
+#faqs {
+  background-color: #f4f6f8; /* Very light grey/blue tint */
+  color: #0e2f56; /* Navy Blue Text */
+  padding: 60px 20px;
+  text-align: center;
 }
 
-.t-container h2 {
-  font-size: 2rem;
-  font-weight: 600;
-  margin: 0;
+/* --- FOOTER / CONTACTS (Darkest for the bottom anchor) --- */
+footer {
+  background-color: #051120; /* Very dark, almost black blue */
+  color: #ffffff; /* White Text */
+  padding: 30px 20px;
+  text-align: center;
+  border-top: 4px solid #ffc107; /* A Golden Line on top for style */
 }
 
+/* Optional: Make the headings inside these sections pop */
+#about h1 {
+  color: #ffc107; /* Gold Header for the dark background */
+  margin-bottom: 20px;
+}
+
+#faqs h2 {
+  color: #0e2f56; /* Navy Header for the light background */
+  margin-bottom: 20px;
+}
 @media (max-width: 768px) {
   /* Make header and nav full width and stacked */
   .header-container {
