@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Admission Form</title>
+    <link rel="stylesheet" href="../styles/form.css" />
+  </head>
+  <body>
+    <!-- Custom Alert/Message Box UI -->
+    <div id="customAlert">
+      <div class="alert-box">
+        <h4 id="alertTitle"></h4>
+        <p id="alertMessage"></p>
+        <button id="alertCloseBtn">Close</button>
+      </div>
+    </div>
+
+    <!-- Terms and Condition Modal -->
+    <div id="terms-condition">
+      <!-- DECLINE MESSAGE -->
+      <div id="declineMessage" style="display: none">
+        <h3 style="margin-bottom: 10px">Application Blocked</h3>
+        <p>
+          You have declined the Terms and Conditions. You cannot proceed with
+          the application until you accept them.
+        </p>
+        <button id="reopenTerms">Review Terms</button>
+      </div>
+
+      <!-- T&C CONTENT CONTAINER -->
+      <div id="tcContentBox" class="tc-box">
+        <h3>Terms and condition</h3>
+        <div class="tc-content">
+          <p>
+            By accessing and using this admission form, you agree to comply with
+            the following terms and conditions:
+          </p>
+          <ol>
+            <li>
+              <strong>Accuracy of Information:</strong> You agree to provide
+              accurate and truthful information in all fields of the admission
+              form. Any false or misleading information may result in the
+              rejection of your application.
+            </li>
+            <li>
+              <strong>Data Privacy:</strong> You consent to the collection,
+              storage, and processing of your personal data as outlined in our
+              Privacy Policy. Your information will be used solely for the
+              purpose of processing your admission application.
+            </li>
+            <li>
+              <strong>Eligibility:</strong> You confirm that you meet all the
+              eligibility criteria for the course you are applying for. It is
+              your responsibility to ensure that you fulfill the necessary
+              requirements.
+            </li>
+            <li>
+              <strong>Submission Deadline:</strong> You acknowledge that it is
+              your responsibility to submit the completed admission form before
+              the specified deadline. Late submissions may not be considered.
+            </li>
+            <li>
+              <strong>Acceptance of Terms:</strong> By submitting the admission
+              form, you agree to abide by all the rules, regulations, and
+              policies of the institution.
+            </li>
+          </ol>
+          <p>
+            If you do not agree with any of these terms and conditions, please
+            refrain from using this admission form.
+          </p>
+        </div>
+        <div class="tc-actions">
+          <button id="tc-accept">Accept</button>
+          <button id="tc-decline">Decline</button>
+        </div>
+      </div>
+    </div>
+
+    <header>
+      <div class="header1">
+        <!-- Using a standard placeholder image -->
+        <img
+          src="/IMG/TCClogo1.png"
+          alt="logo"
+          onerror="this.onerror=null; this.src='https://placehold.co/100x40/004080/FFFFFF?text=TCC';"
+        />
+        <h2>Admission Application</h2>
+      </div>
+    </header>
+
+    <div class="main-content-wrapper">
+      <!-- Aside (Progress Tracker) -->
+      <aside id="form-aside">
+        <div class="progresstrack">
+          <h4>Progress</h4>
+          <div class="stepper-wrapper">
+            <div class="stepper-line"></div>
+            <ul class="stepper-list">
+              <li id="step1-item" class="step-item">
+                <div id="step1-circle" class="circle">1</div>
+                <div class="step-content">
+                  <span class="step-title">Personal Info</span>
+                  <span id="step1-subtitle" class="step-subtitle">Pending</span>
+                </div>
+              </li>
+              <li id="step2-item" class="step-item">
+                <div id="step2-circle" class="circle">2</div>
+                <div class="step-content">
+                  <span class="step-title">Course Enrollment</span>
+                  <span id="step2-subtitle" class="step-subtitle">Pending</span>
+                </div>
+              </li>
+              <li id="step3-item" class="step-item">
+                <div id="step3-circle" class="circle">3</div>
+                <div class="step-content">
+                  <span class="step-title">Review & Submit</span>
+                  <span id="step3-subtitle" class="step-subtitle">Pending</span>
+                </div>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </aside>
+
+      <main class="form-container">
+        <!-- Main Form (Step 1) -->
+        <form id="admissionForm">
+          <h3>Personal Information</h3>
+          <div class="form-grid">
+            <div class="full-width">
+              <label for="fullName">Full Name:</label>
+              <input type="text" id="fullName" name="fullName" required />
+            </div>
+
+            <div>
+              <label for="birthdate">Birthdate:</label>
+              <input type="date" id="birthdate" name="birthdate" required />
+            </div>
+
+            <div>
+              <label for="email">Email:</label>
+              <input type="email" id="email" name="email" required />
+            </div>
+
+            <div class="full-width">
+              <label>Gender:</label>
+              <div style="display: flex; gap: 10px">
+                <label for="genderMale" class="gender">
+                  <input
+                    type="radio"
+                    name="gender"
+                    id="genderMale"
+                    value="Male"
+                    required
+                  />
+                  Male
+                </label>
+                <label for="genderFemale" class="gender">
+                  <input
+                    type="radio"
+                    name="gender"
+                    id="genderFemale"
+                    value="Female"
+                  />
+                  Female
+                </label>
+              </div>
+            </div>
+
+            <div class="full-width">
+              <label for="phone">Phone Number:</label>
+              <input type="tel" id="phone" name="phone" required />
+            </div>
+          </div>
+
+          <h3 style="margin-top: 1.5rem">Course Selection</h3>
+          <div>
+            <label for="course">Select Course:</label>
+            <select id="course" name="course" required>
+              <option value="">--Please choose an option--</option>
+              <option value="indtech">
+                BS Industrial Technology (BSIndTech)
+              </option>
+              <option value="hospitalitymanagement">
+                BS Hospitality Management (BSHM)
+              </option>
+              <option value="secondaryeduc">
+                BS Secondary Education (BSED)
+              </option>
+            </select>
+          </div>
+
+          <button type="submit">Proceed to Subject Enrollment (Step 2)</button>
+        </form>
+
+        <!-- === STEP 2 FORMS === -->
+
+        <!-- 1. BSHM Form -->
+        <form
+          id="subjectenroll"
+          class="enrollment-popup"
+          data-for="hospitalitymanagement"
+        >
+          <h3>Step 2: Subject Enrollment for BSHM</h3>
+          <label>Select Subjects (Choose at least one):</label>
+          <div
+            style="
+              display: flex;
+              flex-direction: column;
+              gap: 0.5rem;
+              margin-top: 0.5rem;
+              padding: 1rem;
+              border: 1px solid #ccc;
+              border-radius: 6px;
+            "
+          >
+            <label
+              ><input
+                type="checkbox"
+                name="subjects"
+                value="Food and Beverage"
+              />
+              Food and Beverage</label
+            >
+            <label
+              ><input
+                type="checkbox"
+                name="subjects"
+                value="Front Office Management"
+              />
+              Front Office Management</label
+            >
+            <label
+              ><input type="checkbox" name="subjects" value="Culinary Arts" />
+              Culinary Arts</label
+            >
+          </div>
+          <div class="button-group">
+            <button
+              type="button"
+              class="btn-close"
+              onclick="closePopup('subjectenroll')"
+            >
+              Go Back
+            </button>
+            <button type="submit" class="btn-next">
+              Review Application (Step 3)
+            </button>
+          </div>
+        </form>
+
+        <!-- 2. BSIndTech Form -->
+        <form id="subjectenroll1" class="enrollment-popup" data-for="indtech">
+          <h3>Step 2: Subject Enrollment for BSIndTech</h3>
+          <label>Select Subjects (Choose at least one):</label>
+          <div
+            style="
+              display: flex;
+              flex-direction: column;
+              gap: 0.5rem;
+              margin-top: 0.5rem;
+              padding: 1rem;
+              border: 1px solid #ccc;
+              border-radius: 6px;
+            "
+          >
+            <label
+              ><input
+                type="checkbox"
+                name="subjects"
+                value="Computer Technology"
+              />
+              Computer Technology</label
+            >
+            <label
+              ><input type="checkbox" name="subjects" value="Electronics" />
+              Electronics</label
+            >
+            <label
+              ><input
+                type="checkbox"
+                name="subjects"
+                value="Automotive Repair"
+              />
+              Automotive Repair</label
+            >
+          </div>
+          <div class="button-group">
+            <button
+              type="button"
+              class="btn-close"
+              onclick="closePopup('subjectenroll1')"
+            >
+              Go Back
+            </button>
+            <button type="submit" class="btn-next">
+              Review Application (Step 3)
+            </button>
+          </div>
+        </form>
+
+        <!-- 3. BSED Form -->
+        <form
+          id="subjectenroll2"
+          class="enrollment-popup"
+          data-for="secondaryeduc"
+        >
+          <h3>Step 2: Subject Enrollment for BSED</h3>
+          <label>Select Subjects (Choose at least one):</label>
+          <div
+            style="
+              display: flex;
+              flex-direction: column;
+              gap: 0.5rem;
+              margin-top: 0.5rem;
+              padding: 1rem;
+              border: 1px solid #ccc;
+              border-radius: 6px;
+            "
+          >
+            <label
+              ><input type="checkbox" name="subjects" value="Mathematics" />
+              Mathematics</label
+            >
+            <label
+              ><input type="checkbox" name="subjects" value="Science" />
+              Science</label
+            >
+            <label
+              ><input
+                type="checkbox"
+                name="subjects"
+                value="English Literature"
+              />
+              English Literature</label
+            >
+          </div>
+          <div class="button-group">
+            <button
+              type="button"
+              class="btn-close"
+              onclick="closePopup('subjectenroll2')"
+            >
+              Go Back
+            </button>
+            <button type="submit" class="btn-next">
+              Review Application (Step 3)
+            </button>
+          </div>
+        </form>
+
+        <!-- Review Details (Step 3) -->
+        <div id="reviewalldetails" class="enrollment-popup">
+          <table>
+            <!-- Content injected by JavaScript -->
+          </table>
+          <div class="button-group">
+            <button
+              type="button"
+              class="btn-close"
+              onclick="closePopup('reviewalldetails')"
+            >
+              Go Back to Subjects (Step 2)
+            </button>
+            <!-- Final submit button is inside the table footer for consistent layout -->
+          </div>
+        </div>
+      </main>
+    </div>
+
+    <script src="../scripts/form.js"></script>
+  </body>
+</html>

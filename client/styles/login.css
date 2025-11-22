@@ -259,7 +259,7 @@ html {
   transform: scale(1.07);
 }
 
-.ticketinput {
+#ticketinput {
   width: 15rem;
   height: 1.3rem;
   outline: black;
@@ -268,11 +268,11 @@ html {
   transition: transform 0.1s ease-in-out;
 }
 
-.input-area .ticketinput:hover {
+.input-area #ticketinput:hover {
   transform: scale(1.1);
 }
 
-.input-area .ticketinput:focus {
+.input-area #ticketinput:focus {
   transform: scale(1.1);
 }
 
@@ -320,8 +320,74 @@ html {
 #about {
   background-color: #0e2f56; /* School Navy Blue */
   color: #ffffff; /* White Text */
-  padding: 60px 20px; /* Adds breathing room top/bottom */
+  padding: 5rem 5em;
   text-align: center;
+}
+
+#about h1 {
+  color: #ffc107; /* Gold Header for the dark background */
+  margin-bottom: 20px;
+}
+
+h2 {
+  color: black;
+  margin-bottom: 15px;
+  display: inline-block;
+}
+
+#about h3 {
+  color: #ffc107;
+}
+
+#about .about-container {
+  background-color: #ffffff;
+  color: black;
+  width: 100%;
+  height: 120vh;
+  margin: 0;
+  padding: 0;
+}
+
+.about1 {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 1em;
+}
+
+.about1 .head1 {
+  box-shadow: #333 0px 4px 8px;
+  width: 12em;
+  height: 15em;
+  margin-top: 30px;
+  margin-bottom: 5px;
+  background-color: #ffc107;
+}
+
+.about2 {
+  display: flex;
+  flex-direction: row;
+  gap: 5em;
+  align-items: center;
+  justify-content: center;
+  padding: 1em;
+}
+
+.about2 .head1 {
+  box-shadow: #333 0px 4px 8px;
+  width: 12em;
+  height: 15em;
+  margin-top: 30px;
+  margin-bottom: 5px;
+  background-color: #ffc107;
+}
+
+.head1 img {
+  width: 6em;
+  height: 6em;
+  margin-top: 1em;
+  border-radius: 50%;
 }
 
 /* --- FAQ SECTION (Light Grey for readability) --- */
@@ -342,15 +408,29 @@ footer {
 }
 
 /* Optional: Make the headings inside these sections pop */
-#about h1 {
-  color: #ffc107; /* Gold Header for the dark background */
-  margin-bottom: 20px;
-}
 
 #faqs h2 {
   color: #0e2f56; /* Navy Header for the light background */
   margin-bottom: 20px;
 }
+
+.socials ul {
+  list-style: none;
+  display: flex;
+  justify-content: center;
+  gap: 2rem;
+  padding: 0;
+  margin: 1rem 0 0 0;
+}
+
+/* In styles/login.css */
+#ticket-error-message {
+  color: #ff4444; /* A brighter red */
+  font-size: 0.9em;
+  padding-top: 5px;
+  text-align: center;
+}
+
 @media (max-width: 768px) {
   /* Make header and nav full width and stacked */
   .header-container {
@@ -439,6 +519,10 @@ footer {
     margin-bottom: 0.5rem; /* Add small margin between stacked links */
   }
 
+  .nav-links .pcli {
+    display: none;
+  }
+
   .logo {
     /* Adjust logo positioning */
     position: relative; /* Remove absolute positioning */
@@ -499,6 +583,14 @@ footer {
 
     /* 2. The Width: Options are 'auto' (fat) or 'thin' (sleek) */
     scrollbar-width: none;
+  }
+
+  #about {
+    display: none;
+  }
+
+  footer {
+    display: none;
   }
 
   /* --- Optional: Adjust body for better mobile view --- */
