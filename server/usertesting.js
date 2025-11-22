@@ -30,7 +30,7 @@ function handleTicketSubmission(event) {
   // Clear any previous error message
   removeErrorMessage();
 
-  const enteredTicket = ticketInput.value.trim().toUpperCase(); // Trim whitespace and convert to uppercase for robust matching
+  const enteredTicket = ticketInput.value.trim(); // Trim whitespace and convert to uppercase for robust matching
 
   // Check if the entered ticket is in the list of valid tickets
   if (VALID_TICKETS.includes(enteredTicket)) {

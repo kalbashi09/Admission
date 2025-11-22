@@ -114,3 +114,16 @@ document.addEventListener("DOMContentLoaded", () => {
 
   window.addEventListener("scroll", handleSmartScroll);
 });
+
+document.addEventListener("DOMContentLoaded", (event) => {
+  // 1. Get a reference to the target element
+  const targetElement = document.getElementById("header1");
+
+  if (targetElement) {
+    // 2. Use the scrollIntoView() method to scroll the element into the viewport
+    targetElement.scrollIntoView({
+      behavior: "smooth", // Optional: Makes the scroll smooth
+      block: "start", // Optional: Aligns the top of the element to the top of the viewport
+    });
+  }
+});
