@@ -5,8 +5,95 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>TCC Admission Portal</title>
     <link rel="stylesheet" href="../styles/login.css" />
+
+    <style>
+      #customAlert {
+        position: fixed;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(17, 24, 39, 0.85);
+        z-index: 9999;
+        display: none; /* Hidden by default */
+        align-items: center;
+        justify-content: center;
+        backdrop-filter: blur(4px);
+        transition: opacity 0.3s;
+      }
+
+      .modal-content {
+        background-color: #ffffff;
+        padding: 2rem;
+        border-radius: 16px;
+        box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.2),
+          0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        width: 90%;
+        max-width: 384px;
+        text-align: center;
+        border-top: 4px solid; /* Color set by JS inline style */
+      }
+
+      .modal-icon-svg {
+        margin: 0 auto 1rem;
+        height: 3rem;
+        width: 3rem;
+        stroke-width: 2px;
+      }
+
+      .modal-title {
+        font-size: 1.5rem;
+        font-weight: 700;
+        margin-bottom: 0.75rem;
+        color: #1f2937;
+      }
+
+      .modal-message {
+        color: #4b5563;
+        margin-bottom: 1.5rem;
+      }
+
+      .modal-close-btn {
+        padding: 0.5rem 1.5rem;
+        color: #ffffff;
+        font-weight: 600;
+        border-radius: 8px;
+        border: none;
+        cursor: pointer;
+        transition: background-color 0.15s, box-shadow 0.15s;
+      }
+
+      /* Custom Hover Classes expected by the JS script */
+      .hover-blue:hover {
+        background-color: #1d4ed8 !important;
+      }
+      .hover-red:hover {
+        background-color: #b91c1c !important;
+      }
+      .hover-green:hover {
+        background-color: #15803d !important;
+      }
+    </style>
   </head>
   <body>
+    <!-- Custom Alert Modal Structure (Hidden by default) -->
+    <div id="customAlert">
+      <div class="modal-content" id="alertContent">
+        <!-- Icon placeholder for SVG path injected by JS -->
+        <svg
+          id="alertIcon"
+          class="modal-icon-svg"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+        ></svg>
+        <h2 id="alertTitle" class="modal-title">Alert Title</h2>
+        <p id="alertMessage" class="modal-message">
+          Alert message content goes here.
+        </p>
+        <button id="alertCloseBtn" class="modal-close-btn">Close</button>
+      </div>
+    </div>
+
     <header class="header-container">
       <div class="menu">
         <section id="header1">
@@ -222,5 +309,6 @@
     </footer>
     <script src="../scripts/login.js"></script>
     <script src="/server/usertesting.js"></script>
+    <!-- <script src="../scripts/usertickets.js"></script> -->
   </body>
 </html>

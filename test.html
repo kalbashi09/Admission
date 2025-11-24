@@ -3,373 +3,1179 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Admission Form Test</title>
-    <link rel="stylesheet" href="../test.css" />
+    <title>Multi-Step Admission Form</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --primary-blue: #2563eb;
+        --primary-green: #22c55e;
+        --primary-red: #dc2626;
+      }
+
+      body {
+        font-family: "Inter", sans-serif;
+        background-color: #f3f4f6;
+        min-height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 20px;
+      }
+
+      .card {
+        background-color: white;
+        border-radius: 1rem;
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1),
+          0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        max-width: 1200px;
+        width: 100%;
+        display: flex;
+        min-height: 600px;
+        overflow: hidden;
+      }
+
+      /* ASIDE/PROGRESS BAR STYLES */
+      #form-aside {
+        width: 300px;
+        background-color: var(--primary-blue);
+        padding: 2.5rem;
+        color: white;
+        display: none; /* Hidden initially, shown after T&C acceptance */
+        flex-shrink: 0;
+      }
+      .step-circle {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        border: 2px solid white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+        color: white;
+        transition: all 0.3s;
+        background-color: transparent;
+      }
+      .step-circle.active {
+        background-color: white;
+        color: var(--primary-blue);
+        border-color: white;
+      }
+      .step-circle.completed {
+        background-color: var(--primary-green);
+        border-color: var(--primary-green);
+        content: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='20 6 9 17 4 12'%3E%3C/polyline%3E%3C/svg%3E");
+        font-size: 0; /* Hide number content */
+      }
+      .step-line {
+        height: 4px;
+        background-color: rgba(255, 255, 255, 0.5);
+        width: 50%;
+        margin: 0 auto;
+        position: relative;
+        z-index: 0;
+      }
+
+      /* MAIN CONTENT STYLES */
+      .form-main-content {
+        flex-grow: 1;
+        padding: 2.5rem;
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        overflow-y: auto;
+      }
+      .enrollment-popup {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: white;
+        display: none;
+        flex-direction: column;
+        padding: 2.5rem;
+        z-index: 10;
+      }
+      #terms-condition {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 2.5rem;
+        z-index: 20;
+      }
+      .btn-primary {
+        background-color: var(--primary-blue);
+        color: white;
+        padding: 10px 20px;
+        border-radius: 0.5rem;
+        font-weight: 600;
+        transition: background-color 0.3s;
+      }
+      .btn-primary:hover {
+        background-color: #1d4ed8;
+      }
+      .bg-green {
+        background-color: var(--primary-green);
+      }
+      .hover-green:hover {
+        background-color: #15803d !important;
+      }
+      .bg-red {
+        background-color: var(--primary-red);
+      }
+      .hover-red:hover {
+        background-color: #b91c1c !important;
+      }
+      .bg-blue {
+        background-color: var(--primary-blue);
+      }
+      .hover-blue:hover {
+        background-color: #1d4ed8 !important;
+      }
+
+      /* Review Table Specific Styling */
+      #reviewalldetails table {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0;
+        margin-top: 1.5rem;
+        border: 1px solid #e5e7eb;
+        border-radius: 0.5rem;
+        overflow: hidden;
+      }
+      #reviewalldetails th {
+        background-color: var(--primary-blue);
+        color: white;
+        padding: 1rem;
+        font-size: 1.25rem;
+        text-align: center;
+      }
+      #reviewalldetails td {
+        padding: 1rem;
+        border-bottom: 1px solid #e5e7eb;
+        vertical-align: top;
+      }
+      #reviewalldetails tr:last-child td {
+        border-bottom: none;
+      }
+      #reviewalldetails .section-header {
+        background-color: #f3f4f6;
+        font-weight: 700;
+        font-size: 1.125rem;
+        color: var(--primary-blue);
+        padding: 0.75rem 1rem;
+        border-top: 2px solid var(--primary-blue);
+        border-bottom: 1px solid var(--primary-blue);
+      }
+
+      /* CUSTOM ALERT MODAL */
+      #customAlert {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+        display: none;
+        justify-content: center;
+        align-items: center;
+        z-index: 50;
+      }
+
+      .alert-content {
+        background-color: white;
+        padding: 30px;
+        border-radius: 1rem;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        max-width: 400px;
+        width: 90%;
+        text-align: center;
+      }
+      /* Responsive design for smaller screens */
+      @media (max-width: 768px) {
+        .card {
+          flex-direction: column;
+          min-height: auto;
+          max-width: 100%;
+        }
+        #form-aside {
+          width: 100%;
+        }
+        .form-main-content {
+          padding: 1.5rem;
+        }
+        .enrollment-popup {
+          padding: 1.5rem;
+        }
+      }
+    </style>
   </head>
   <body>
-    <!-- Custom Alert/Message Box UI -->
-    <div id="customAlert">
-      <div class="alert-box">
-        <h4 id="alertTitle"></h4>
-        <p id="alertMessage"></p>
-        <button id="alertCloseBtn">Close</button>
-      </div>
-    </div>
-
-    <!-- Terms and Condition Modal -->
-    <div id="terms-condition">
-      <!-- DECLINE MESSAGE -->
-      <div id="declineMessage" style="display: none">
-        <h3 style="margin-bottom: 10px">Application Blocked</h3>
-        <p>
-          You have declined the Terms and Conditions. You cannot proceed with
-          the application until you accept them.
-        </p>
-        <button id="reopenTerms">Review Terms</button>
-      </div>
-
-      <!-- T&C CONTENT CONTAINER -->
-      <div id="tcContentBox" class="tc-box">
-        <h3>Terms and condition</h3>
-        <div class="tc-content">
-          <p>
-            By accessing and using this admission form, you agree to comply with
-            the following terms and conditions:
-          </p>
-          <ol>
-            <li>
-              <strong>Accuracy of Information:</strong> You agree to provide
-              accurate and truthful information in all fields of the admission
-              form. Any false or misleading information may result in the
-              rejection of your application.
-            </li>
-            <li>
-              <strong>Data Privacy:</strong> You consent to the collection,
-              storage, and processing of your personal data as outlined in our
-              Privacy Policy. Your information will be used solely for the
-              purpose of processing your admission application.
-            </li>
-            <li>
-              <strong>Eligibility:</strong> You confirm that you meet all the
-              eligibility criteria for the course you are applying for. It is
-              your responsibility to ensure that you fulfill the necessary
-              requirements.
-            </li>
-            <li>
-              <strong>Submission Deadline:</strong> You acknowledge that it is
-              your responsibility to submit the completed admission form before
-              the specified deadline. Late submissions may not be considered.
-            </li>
-            <li>
-              <strong>Acceptance of Terms:</strong> By submitting the admission
-              form, you agree to abide by all the rules, regulations, and
-              policies of the institution.
-            </li>
-          </ol>
-          <p>
-            If you do not agree with any of these terms and conditions, please
-            refrain from using this admission form.
-          </p>
-        </div>
-        <div class="tc-actions">
-          <button id="tc-accept">Accept</button>
-          <button id="tc-decline">Decline</button>
-        </div>
-      </div>
-    </div>
-
-    <header>
-      <div class="header1">
-        <!-- Using a standard placeholder image -->
-        <img
-          src="/IMG/TCClogo1.png"
-          alt="logo"
-          onerror="this.onerror=null; this.src='https://placehold.co/100x40/004080/FFFFFF?text=TCC';"
-        />
-        <h2>Admission Application</h2>
-      </div>
-    </header>
-
-    <div class="main-content-wrapper">
-      <!-- Aside (Progress Tracker) -->
+    <div class="card">
+      <!-- Sidebar: Progress Tracker -->
       <aside id="form-aside">
-        <div class="progresstrack">
-          <h4>Progress</h4>
-          <div class="stepper-wrapper">
-            <div class="stepper-line"></div>
-            <ul class="stepper-list">
-              <li id="step1-item" class="step-item">
-                <div id="step1-circle" class="circle">1</div>
-                <div class="step-content">
-                  <span class="step-title">Personal Info</span>
-                  <span id="step1-subtitle" class="step-subtitle">Pending</span>
-                </div>
-              </li>
-              <li id="step2-item" class="step-item">
-                <div id="step2-circle" class="circle">2</div>
-                <div class="step-content">
-                  <span class="step-title">Course Enrollment</span>
-                  <span id="step2-subtitle" class="step-subtitle">Pending</span>
-                </div>
-              </li>
-              <li id="step3-item" class="step-item">
-                <div id="step3-circle" class="circle">3</div>
-                <div class="step-content">
-                  <span class="step-title">Review & Submit</span>
-                  <span id="step3-subtitle" class="step-subtitle">Pending</span>
-                </div>
-              </li>
-            </ul>
+        <h2 class="text-2xl font-bold mb-8">Enrollment Steps</h2>
+        <div class="space-y-6">
+          <!-- Step 1 -->
+          <div class="flex items-start">
+            <div class="flex flex-col items-center">
+              <div id="step1-circle" class="step-circle completed">1</div>
+              <div class="step-line"></div>
+            </div>
+            <div class="ml-4 pt-1">
+              <p class="font-semibold">Step 1: Personal Details</p>
+              <p id="step1-subtitle" class="text-sm text-gray-200">Pending</p>
+            </div>
           </div>
+
+          <!-- Step 2 -->
+          <div class="flex items-start">
+            <div class="flex flex-col items-center">
+              <div id="step2-circle" class="step-circle">2</div>
+              <div class="step-line"></div>
+            </div>
+            <div class="ml-4 pt-1">
+              <p class="font-semibold">Step 2: Subject Selection</p>
+              <p id="step2-subtitle" class="text-sm text-gray-200">Pending</p>
+            </div>
+          </div>
+
+          <!-- Step 3 -->
+          <div class="flex items-start">
+            <div class="flex flex-col items-center">
+              <div id="step3-circle" class="step-circle">3</div>
+            </div>
+            <div class="ml-4 pt-1">
+              <p class="font-semibold">Step 3: Review & Submit</p>
+              <p id="step3-subtitle" class="text-sm text-gray-200">Pending</p>
+            </div>
+          </div>
+        </div>
+        <div
+          id="user-info"
+          class="mt-8 text-xs bg-white/20 p-2 rounded-lg break-words"
+        >
+          <p class="font-bold mb-1">Authenticated User:</p>
+          <p id="auth-status">Initializing...</p>
+          <p id="user-id-display" class="mt-1"></p>
         </div>
       </aside>
 
-      <main class="form-container">
-        <!-- Main Form (Step 1) -->
-        <form id="admissionForm">
-          <h3>Personal Information</h3>
-          <div class="form-grid">
-            <div class="full-width">
-              <label for="fullName">Full Name:</label>
-              <input type="text" id="fullName" name="fullName" required />
+      <!-- Main Content Area -->
+      <div class="form-main-content">
+        <!-- 1. Terms and Conditions (Initial Overlay) -->
+        <div id="terms-condition">
+          <div
+            id="tcContentBox"
+            class="bg-gray-50 p-6 md:p-10 rounded-xl shadow-lg max-w-lg w-full transition-all"
+          >
+            <h1 class="text-3xl font-bold mb-4 text-center text-gray-800">
+              Terms & Conditions
+            </h1>
+            <div
+              class="h-64 overflow-y-auto bg-white p-4 border rounded-lg text-sm text-gray-600 mb-6"
+            >
+              <p class="font-bold mb-2">1. Data Privacy and Use</p>
+              <p class="mb-3">
+                By accepting, you consent to the storage and processing of your
+                personal data (name, email, etc.) for the sole purpose of
+                admission and enrollment. Your data will be kept private and
+                secure, in accordance with our data protection policy.
+              </p>
+              <p class="font-bold mb-2">2. Accuracy of Information</p>
+              <p class="mb-3">
+                You attest that all information provided in this application is
+                true, complete, and accurate to the best of your knowledge. Any
+                false statement may result in the rejection of your application.
+              </p>
+              <p class="font-bold mb-2">3. Subject Enrollment</p>
+              <p class="mb-3">
+                Subject selection is tentative and subject to final scheduling
+                and availability confirmed by the registrar's office.
+              </p>
             </div>
-
-            <div>
-              <label for="birthdate">Birthdate:</label>
-              <input type="date" id="birthdate" name="birthdate" required />
-            </div>
-
-            <div>
-              <label for="email">Email:</label>
-              <input type="email" id="email" name="email" required />
-            </div>
-
-            <div class="full-width">
-              <label>Gender:</label>
-              <div style="display: flex; gap: 10px">
-                <label for="genderMale" class="gender">
-                  <input
-                    type="radio"
-                    name="gender"
-                    id="genderMale"
-                    value="Male"
-                    required
-                  />
-                  Male
-                </label>
-                <label for="genderFemale" class="gender">
-                  <input
-                    type="radio"
-                    name="gender"
-                    id="genderFemale"
-                    value="Female"
-                  />
-                  Female
-                </label>
-              </div>
-            </div>
-
-            <div class="full-width">
-              <label for="phone">Phone Number:</label>
-              <input type="tel" id="phone" name="phone" required />
+            <div class="flex justify-end space-x-4">
+              <button
+                id="tc-decline"
+                class="bg-red hover-red text-white py-2 px-6 rounded-lg font-semibold transition"
+              >
+                Decline
+              </button>
+              <button
+                id="tc-accept"
+                class="bg-blue hover-blue text-white py-2 px-6 rounded-lg font-semibold transition"
+              >
+                Accept & Continue
+              </button>
             </div>
           </div>
 
-          <h3 style="margin-top: 1.5rem">Course Selection</h3>
-          <div>
-            <label for="course">Select Course:</label>
-            <select id="course" name="course" required>
-              <option value="">--Please choose an option--</option>
-              <option value="indtech">
-                BS Industrial Technology (BSIndTech)
-              </option>
+          <div
+            id="declineMessage"
+            class="bg-red-100 border border-red-400 text-red-700 p-6 rounded-xl shadow-lg max-w-lg w-full"
+            style="display: none"
+          >
+            <p class="text-xl font-semibold mb-4">Terms Not Accepted</p>
+            <p class="mb-6">
+              You must accept the Terms and Conditions to proceed with the
+              admission application.
+            </p>
+            <button
+              id="reopenTerms"
+              class="bg-red hover-red text-white py-2 px-6 rounded-lg font-semibold transition"
+            >
+              Review Terms Again
+            </button>
+          </div>
+        </div>
+
+        <!-- 2. Step 1: Personal Details Form -->
+        <form id="admissionForm" class="space-y-6">
+          <h2 class="text-3xl font-bold text-gray-800 mb-6">
+            1. Personal & Course Information
+          </h2>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <label class="block">
+              <span class="text-gray-700">Full Name</span>
+              <input
+                type="text"
+                name="fullName"
+                class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm p-3"
+                required
+                value="Jane Doe"
+              />
+            </label>
+            <label class="block">
+              <span class="text-gray-700">Birthdate</span>
+              <input
+                type="date"
+                name="birthdate"
+                class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm p-3"
+                required
+                value="2000-01-01"
+              />
+            </label>
+            <label class="block">
+              <span class="text-gray-700">Gender</span>
+              <select
+                name="gender"
+                class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm p-3"
+                required
+              >
+                <option value="">Select Gender</option>
+                <option value="Female" selected>Female</option>
+                <option value="Male">Male</option>
+                <option value="Other">Other</option>
+              </select>
+            </label>
+            <label class="block">
+              <span class="text-gray-700">Phone Number</span>
+              <input
+                type="tel"
+                name="phone"
+                class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm p-3"
+                required
+                value="09123456789"
+              />
+            </label>
+            <label class="block col-span-1 md:col-span-2">
+              <span class="text-gray-700">Email Address</span>
+              <input
+                type="email"
+                name="email"
+                class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm p-3"
+                required
+                value="jane.doe@example.com"
+              />
+            </label>
+          </div>
+
+          <h3 class="text-xl font-semibold text-gray-700 pt-4">
+            Select Course
+          </h3>
+          <label class="block">
+            <span class="text-gray-700">Preferred Course</span>
+            <select
+              id="course"
+              name="course"
+              class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm p-3"
+              required
+            >
+              <option value="">Select a Course</option>
+              <option value="indtech">BS Industrial Technology</option>
               <option value="hospitalitymanagement">
-                BS Hospitality Management (BSHM)
+                BS Hospitality Management
               </option>
-              <option value="secondaryeduc">
-                BS Secondary Education (BSED)
+              <option value="secondaryeduc" selected>
+                BS Secondary Education
               </option>
             </select>
-          </div>
+          </label>
 
-          <button type="submit">Proceed to Subject Enrollment (Step 2)</button>
+          <div class="flex justify-end pt-4">
+            <button type="submit" class="btn-primary">
+              Proceed to Step 2 &rarr;
+            </button>
+          </div>
         </form>
 
-        <!-- === STEP 2 FORMS === -->
+        <!-- 3. Step 2: Subject Enrollment Forms (Popups) -->
 
-        <!-- 1. BSHM Form -->
+        <!-- Form for BS Secondary Education -->
         <form
-          id="subjectenroll"
-          class="enrollment-popup"
-          data-for="hospitalitymanagement"
-        >
-          <h3>Step 2: Subject Enrollment for BSHM</h3>
-          <label>Select Subjects (Choose at least one):</label>
-          <div
-            style="
-              display: flex;
-              flex-direction: column;
-              gap: 0.5rem;
-              margin-top: 0.5rem;
-              padding: 1rem;
-              border: 1px solid #ccc;
-              border-radius: 6px;
-            "
-          >
-            <label
-              ><input
-                type="checkbox"
-                name="subjects"
-                value="Food and Beverage"
-              />
-              Food and Beverage</label
-            >
-            <label
-              ><input
-                type="checkbox"
-                name="subjects"
-                value="Front Office Management"
-              />
-              Front Office Management</label
-            >
-            <label
-              ><input type="checkbox" name="subjects" value="Culinary Arts" />
-              Culinary Arts</label
-            >
-          </div>
-          <div class="button-group">
-            <button
-              type="button"
-              class="btn-close"
-              onclick="closePopup('subjectenroll')"
-            >
-              Go Back
-            </button>
-            <button type="submit" class="btn-next">
-              Review Application (Step 3)
-            </button>
-          </div>
-        </form>
-
-        <!-- 2. BSIndTech Form -->
-        <form id="subjectenroll1" class="enrollment-popup" data-for="indtech">
-          <h3>Step 2: Subject Enrollment for BSIndTech</h3>
-          <label>Select Subjects (Choose at least one):</label>
-          <div
-            style="
-              display: flex;
-              flex-direction: column;
-              gap: 0.5rem;
-              margin-top: 0.5rem;
-              padding: 1rem;
-              border: 1px solid #ccc;
-              border-radius: 6px;
-            "
-          >
-            <label
-              ><input
-                type="checkbox"
-                name="subjects"
-                value="Computer Technology"
-              />
-              Computer Technology</label
-            >
-            <label
-              ><input type="checkbox" name="subjects" value="Electronics" />
-              Electronics</label
-            >
-            <label
-              ><input
-                type="checkbox"
-                name="subjects"
-                value="Automotive Repair"
-              />
-              Automotive Repair</label
-            >
-          </div>
-          <div class="button-group">
-            <button
-              type="button"
-              class="btn-close"
-              onclick="closePopup('subjectenroll1')"
-            >
-              Go Back
-            </button>
-            <button type="submit" class="btn-next">
-              Review Application (Step 3)
-            </button>
-          </div>
-        </form>
-
-        <!-- 3. BSED Form -->
-        <form
-          id="subjectenroll2"
+          id="subjectenroll-secondaryeduc"
           class="enrollment-popup"
           data-for="secondaryeduc"
         >
-          <h3>Step 2: Subject Enrollment for BSED</h3>
-          <label>Select Subjects (Choose at least one):</label>
-          <div
-            style="
-              display: flex;
-              flex-direction: column;
-              gap: 0.5rem;
-              margin-top: 0.5rem;
-              padding: 1rem;
-              border: 1px solid #ccc;
-              border-radius: 6px;
-            "
+          <button
+            type="button"
+            class="btn-close self-start text-gray-500 hover:text-gray-900 mb-4"
+            onclick="closePopup('subjectenroll-secondaryeduc')"
           >
+            &larr; Back to Personal Details
+          </button>
+          <h2 class="text-3xl font-bold text-gray-800 mb-6">
+            2. Subject Selection: BS Secondary Education
+          </h2>
+          <p class="mb-6 text-gray-600">
+            Select the subjects you wish to enroll in (minimum 1 required).
+          </p>
+
+          <div class="space-y-3 flex-grow overflow-y-auto pr-2">
             <label
-              ><input type="checkbox" name="subjects" value="Mathematics" />
-              Mathematics</label
+              class="flex items-center p-3 border rounded-lg cursor-pointer hover:bg-indigo-50"
             >
-            <label
-              ><input type="checkbox" name="subjects" value="Science" />
-              Science</label
-            >
-            <label
-              ><input
+              <input
                 type="checkbox"
                 name="subjects"
-                value="English Literature"
+                value="The Teaching Profession"
+                class="rounded text-blue-600 focus:ring-blue-500 mr-3"
+                checked
               />
-              English Literature</label
+              <span class="text-gray-800"
+                >The Teaching Profession (3 Units)</span
+              >
+            </label>
+            <label
+              class="flex items-center p-3 border rounded-lg cursor-pointer hover:bg-indigo-50"
             >
+              <input
+                type="checkbox"
+                name="subjects"
+                value="Curriculum Development"
+                class="rounded text-blue-600 focus:ring-blue-500 mr-3"
+                checked
+              />
+              <span class="text-gray-800"
+                >Curriculum Development (3 Units)</span
+              >
+            </label>
+            <label
+              class="flex items-center p-3 border rounded-lg cursor-pointer hover:bg-indigo-50"
+            >
+              <input
+                type="checkbox"
+                name="subjects"
+                value="Assessment of Learning"
+                class="rounded text-blue-600 focus:ring-blue-500 mr-3"
+              />
+              <span class="text-gray-800"
+                >Assessment of Learning (3 Units)</span
+              >
+            </label>
+            <label
+              class="flex items-center p-3 border rounded-lg cursor-pointer hover:bg-indigo-50"
+            >
+              <input
+                type="checkbox"
+                name="subjects"
+                value="Technology for Teaching and Learning 1"
+                class="rounded text-blue-600 focus:ring-blue-500 mr-3"
+              />
+              <span class="text-gray-800"
+                >Technology for Teaching and Learning 1 (3 Units)</span
+              >
+            </label>
           </div>
-          <div class="button-group">
-            <button
-              type="button"
-              class="btn-close"
-              onclick="closePopup('subjectenroll2')"
-            >
-              Go Back
-            </button>
-            <button type="submit" class="btn-next">
-              Review Application (Step 3)
+
+          <div class="flex justify-end pt-6">
+            <button type="submit" class="btn-primary">
+              Proceed to Review & Submit &rarr;
             </button>
           </div>
         </form>
 
-        <!-- Review Details (Step 3) -->
-        <div id="reviewalldetails" class="enrollment-popup">
-          <table>
-            <!-- Content injected by JavaScript -->
-          </table>
-          <div class="button-group">
-            <button
-              type="button"
-              class="btn-close"
-              onclick="closePopup('reviewalldetails')"
+        <!-- Form for BS Industrial Technology -->
+        <form
+          id="subjectenroll-indtech"
+          class="enrollment-popup"
+          data-for="indtech"
+        >
+          <button
+            type="button"
+            class="btn-close self-start text-gray-500 hover:text-gray-900 mb-4"
+            onclick="closePopup('subjectenroll-indtech')"
+          >
+            &larr; Back to Personal Details
+          </button>
+          <h2 class="text-3xl font-bold text-gray-800 mb-6">
+            2. Subject Selection: BS Industrial Technology
+          </h2>
+          <p class="mb-6 text-gray-600">
+            Select the subjects you wish to enroll in (minimum 1 required).
+          </p>
+
+          <div class="space-y-3 flex-grow overflow-y-auto pr-2">
+            <label
+              class="flex items-center p-3 border rounded-lg cursor-pointer hover:bg-indigo-50"
             >
-              Go Back to Subjects (Step 2)
+              <input
+                type="checkbox"
+                name="subjects"
+                value="Drafting Technology"
+                class="rounded text-blue-600 focus:ring-blue-500 mr-3"
+              />
+              <span class="text-gray-800">Drafting Technology (3 Units)</span>
+            </label>
+            <label
+              class="flex items-center p-3 border rounded-lg cursor-pointer hover:bg-indigo-50"
+            >
+              <input
+                type="checkbox"
+                name="subjects"
+                value="Electrical Wiring"
+                class="rounded text-blue-600 focus:ring-blue-500 mr-3"
+              />
+              <span class="text-gray-800">Electrical Wiring (3 Units)</span>
+            </label>
+            <label
+              class="flex items-center p-3 border rounded-lg cursor-pointer hover:bg-indigo-50"
+            >
+              <input
+                type="checkbox"
+                name="subjects"
+                value="Automotive Technology"
+                class="rounded text-blue-600 focus:ring-blue-500 mr-3"
+              />
+              <span class="text-gray-800">Automotive Technology (3 Units)</span>
+            </label>
+          </div>
+
+          <div class="flex justify-end pt-6">
+            <button type="submit" class="btn-primary">
+              Proceed to Review & Submit &rarr;
             </button>
-            <!-- Final submit button is inside the table footer for consistent layout -->
+          </div>
+        </form>
+
+        <!-- Form for BS Hospitality Management -->
+        <form
+          id="subjectenroll-hospitalitymanagement"
+          class="enrollment-popup"
+          data-for="hospitalitymanagement"
+        >
+          <button
+            type="button"
+            class="btn-close self-start text-gray-500 hover:text-gray-900 mb-4"
+            onclick="closePopup('subjectenroll-hospitalitymanagement')"
+          >
+            &larr; Back to Personal Details
+          </button>
+          <h2 class="text-3xl font-bold text-gray-800 mb-6">
+            2. Subject Selection: BS Hospitality Management
+          </h2>
+          <p class="mb-6 text-gray-600">
+            Select the subjects you wish to enroll in (minimum 1 required).
+          </p>
+
+          <div class="space-y-3 flex-grow overflow-y-auto pr-2">
+            <label
+              class="flex items-center p-3 border rounded-lg cursor-pointer hover:bg-indigo-50"
+            >
+              <input
+                type="checkbox"
+                name="subjects"
+                value="Front Office Operations"
+                class="rounded text-blue-600 focus:ring-blue-500 mr-3"
+              />
+              <span class="text-gray-800"
+                >Front Office Operations (3 Units)</span
+              >
+            </label>
+            <label
+              class="flex items-center p-3 border rounded-lg cursor-pointer hover:bg-indigo-50"
+            >
+              <input
+                type="checkbox"
+                name="subjects"
+                value="Food and Beverage Service"
+                class="rounded text-blue-600 focus:ring-blue-500 mr-3"
+              />
+              <span class="text-gray-800"
+                >Food and Beverage Service (3 Units)</span
+              >
+            </label>
+            <label
+              class="flex items-center p-3 border rounded-lg cursor-pointer hover:bg-indigo-50"
+            >
+              <input
+                type="checkbox"
+                name="subjects"
+                value="Basic Culinary Arts"
+                class="rounded text-blue-600 focus:ring-blue-500 mr-3"
+              />
+              <span class="text-gray-800">Basic Culinary Arts (3 Units)</span>
+            </label>
+          </div>
+
+          <div class="flex justify-end pt-6">
+            <button type="submit" class="btn-primary">
+              Proceed to Review & Submit &rarr;
+            </button>
+          </div>
+        </form>
+
+        <!-- 4. Step 3: Review All Details -->
+        <div id="reviewalldetails" class="enrollment-popup">
+          <button
+            type="button"
+            class="btn-close self-start text-gray-500 hover:text-gray-900 mb-4"
+            onclick="closePopup('reviewalldetails')"
+          >
+            &larr; Back to Subject Selection
+          </button>
+          <h2 class="text-3xl font-bold text-gray-800 mb-6">
+            3. Review Application
+          </h2>
+          <p class="mb-6 text-gray-600">
+            Please review all your details before the final submission. You can
+            go back and edit if needed.
+          </p>
+
+          <div class="flex-grow overflow-y-auto">
+            <table>
+              <!-- Content rendered dynamically by renderReviewDetails -->
+            </table>
           </div>
         </div>
-      </main>
+      </div>
     </div>
 
-    <script src="../test.js"></script>
+    <!-- Custom Alert Modal Structure -->
+    <div id="customAlert">
+      <div class="alert-content">
+        <h3 id="alertTitle" class="text-xl font-bold mb-3 text-gray-900"></h3>
+        <p id="alertMessage" class="mb-6 text-gray-700"></p>
+        <button
+          id="alertCloseBtn"
+          class="bg-blue text-white py-2 px-6 rounded-lg font-semibold transition"
+          style="min-width: 100px"
+        >
+          OK
+        </button>
+      </div>
+    </div>
+
+    <script type="module">
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+      import {
+        getAuth,
+        signInAnonymously,
+        signInWithCustomToken,
+        onAuthStateChanged,
+      } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+      import {
+        getFirestore,
+        collection,
+        addDoc,
+        setLogLevel,
+      } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+      // Enable Firestore Debug Logging
+      setLogLevel("Debug");
+
+      // --- GLOBAL FIREBASE VARIABLES (Initializers) ---
+      let db;
+      let auth;
+      let appId;
+      let userId;
+
+      const firebaseConfig =
+        typeof __firebase_config !== "undefined"
+          ? JSON.parse(__firebase_config)
+          : null;
+      const initialAuthToken =
+        typeof __initial_auth_token !== "undefined"
+          ? __initial_auth_token
+          : null;
+      appId = typeof __app_id !== "undefined" ? __app_id : "default-app-id";
+
+      // --- APPLICATION DATA ---
+      let formData = {
+        personal: {},
+        course: "",
+        subjects: [],
+      };
+
+      // --- DOM ELEMENTS ---
+      const termsContainer = document.getElementById("terms-condition");
+      const tcContentBox = document.getElementById("tcContentBox");
+      const acceptBtn = document.getElementById("tc-accept");
+      const declineBtn = document.getElementById("tc-decline");
+      const mainForm = document.getElementById("admissionForm");
+      const courseSelect = document.getElementById("course");
+      const declineMessage = document.getElementById("declineMessage");
+      const reopenTermsBtn = document.getElementById("reopenTerms");
+      const asideForm = document.getElementById("form-aside");
+      const authStatusEl = document.getElementById("auth-status");
+      const userIdDisplayEl = document.getElementById("user-id-display");
+
+      // Progress Bar Elements
+      const step1Circle = document.getElementById("step1-circle");
+      const step2Circle = document.getElementById("step2-circle");
+      const step3Circle = document.getElementById("step3-circle");
+      const step1Subtitle = document.getElementById("step1-subtitle");
+      const step2Subtitle = document.getElementById("step2-subtitle");
+      const step3Subtitle = document.getElementById("step3-subtitle");
+
+      const alertModal = document.getElementById("customAlert");
+      const alertTitle = document.getElementById("alertTitle");
+      const alertMessageEl = document.getElementById("alertMessage");
+      const alertCloseBtn = document.getElementById("alertCloseBtn");
+
+      // --- UTILITY FUNCTIONS ---
+
+      /**
+       * Custom alert replacement for window.alert() and window.confirm()
+       */
+      function alertMessage(title, message, color = "#2563eb") {
+        alertTitle.textContent = title;
+        alertMessageEl.textContent = message;
+
+        // Set button color
+        const button = alertCloseBtn;
+        button.style.backgroundColor = color;
+
+        // Set hover style (simple approach for inline styling)
+        if (color === "#2563eb")
+          button.className =
+            "bg-blue hover-blue text-white py-2 px-6 rounded-lg font-semibold transition";
+        else if (color === "#dc2626")
+          button.className =
+            "bg-red hover-red text-white py-2 px-6 rounded-lg font-semibold transition";
+        else if (color === "#22c55e")
+          button.className =
+            "bg-green hover-green text-white py-2 px-6 rounded-lg font-semibold transition";
+        else button.className = "btn-primary";
+
+        alertModal.style.display = "flex";
+      }
+
+      alertCloseBtn.addEventListener("click", () => {
+        alertModal.style.display = "none";
+      });
+
+      /**
+       * Shows the specified form/step element and hides all others.
+       * The element must have the class 'enrollment-popup' or be 'admissionForm'.
+       */
+      function showForm(formId) {
+        const formElements = [
+          mainForm,
+          ...document.querySelectorAll(".enrollment-popup"),
+        ];
+
+        formElements.forEach((element) => {
+          element.style.display = element.id === formId ? "flex" : "none";
+        });
+
+        // If we are showing the review details, the back button should go to the subject form
+        if (formId === "reviewalldetails") {
+          const backButton = document.querySelector(
+            "#reviewalldetails .btn-close"
+          );
+          const lastSubjectFormId =
+            Array.from(document.querySelectorAll(".enrollment-popup")).find(
+              (f) => f.dataset.for === formData.course
+            )?.id || "admissionForm";
+
+          // If a back button exists, set its onclick to go to the specific Step 2 form.
+          if (backButton) {
+            backButton.onclick = () =>
+              closePopup("reviewalldetails", lastSubjectFormId);
+          }
+        }
+
+        // Determine the current step index
+        let step = 1;
+        if (
+          formId.startsWith("subjectenroll") &&
+          formId !== "reviewalldetails"
+        ) {
+          step = 2;
+        } else if (formId === "reviewalldetails") {
+          step = 3;
+        }
+        updateProgressBar(step);
+      }
+
+      /**
+       * Updates the visual progress tracker (stepper).
+       */
+      function updateProgressBar(step) {
+        const steps = [
+          { circle: step1Circle, subtitle: step1Subtitle },
+          { circle: step2Circle, subtitle: step2Subtitle },
+          { circle: step3Circle, subtitle: step3Subtitle },
+        ];
+
+        steps.forEach((el, index) => {
+          const currentStep = index + 1;
+
+          el.circle.classList.remove("active", "completed");
+          el.subtitle.textContent = "Pending";
+          el.subtitle.style.color = "#9ca3af";
+
+          if (currentStep < step) {
+            el.circle.classList.add("completed");
+            el.subtitle.textContent = "Completed";
+          } else if (currentStep === step) {
+            el.circle.classList.add("active");
+            el.subtitle.textContent =
+              currentStep === 3 ? "Reviewing" : "In Progress";
+          }
+        });
+      }
+
+      /**
+       * Handles navigation back from Step 2/3 to a previous step.
+       * @param {string} currentFormId - The ID of the form being closed.
+       * @param {string} [targetFormId='admissionForm'] - The ID of the form to go back to.
+       */
+      function closePopup(currentFormId, targetFormId = "admissionForm") {
+        // 1. Hide the current form/div
+        document.getElementById(currentFormId).style.display = "none";
+
+        // 2. Show the target form (defaults to Step 1)
+        showForm(targetFormId);
+      }
+
+      // --- FIREBASE SUBMISSION LOGIC (NEW) ---
+
+      /**
+       * Submits the final application data to Firestore.
+       */
+      async function submitApplicationToFirestore() {
+        if (!db || !userId) {
+          alertMessage(
+            "Error",
+            "Database connection not ready. Please wait a moment and try again.",
+            "#dc2626"
+          );
+          return;
+        }
+
+        const collectionPath = `artifacts/${appId}/users/${userId}/admissions`;
+        const collectionRef = collection(db, collectionPath);
+        const submitButton = document.getElementById("finalSubmit");
+
+        try {
+          submitButton.disabled = true;
+          submitButton.textContent = "Submitting...";
+
+          // Create a clean object for submission
+          const submissionData = {
+            ...formData,
+            submissionDate: new Date().toISOString(),
+            status: "Submitted",
+          };
+
+          const docRef = await addDoc(collectionRef, submissionData);
+
+          alertMessage(
+            "Application Submitted!",
+            "Thank you! Your application for " +
+              (formData.course || "a course") +
+              " has been submitted successfully to the database (Document ID: " +
+              docRef.id +
+              ").",
+            "#22c55e"
+          );
+          submitButton.textContent = "Application Submitted";
+        } catch (error) {
+          console.error("Error writing document to Firestore: ", error);
+          alertMessage(
+            "Submission Failed",
+            "There was an error submitting your application. Please check the console for details.",
+            "#dc2626"
+          );
+          submitButton.disabled = false;
+          submitButton.textContent = "Final Submit Application";
+        }
+      }
+
+      // --- TERMS & CONDITIONS LOGIC ---
+
+      if (acceptBtn) {
+        acceptBtn.addEventListener("click", function () {
+          termsContainer.style.display = "none";
+          asideForm.style.display = "block";
+          showForm(mainForm.id); // Show Step 1
+        });
+      }
+
+      if (declineBtn) {
+        declineBtn.addEventListener("click", function () {
+          tcContentBox.style.display = "none";
+          declineMessage.style.display = "block"; // Show persistent decline message
+          mainForm.style.display = "none";
+          asideForm.style.display = "none";
+          alertMessage(
+            "Application Blocked",
+            "You must accept the Terms and Conditions to proceed.",
+            "#dc2626"
+          );
+          updateProgressBar(0);
+        });
+      }
+
+      if (reopenTermsBtn) {
+        reopenTermsBtn.addEventListener("click", function () {
+          declineMessage.style.display = "none";
+          tcContentBox.style.display = "block";
+        });
+      }
+
+      // --- STEP 1 HANDLER (Personal Info & Course) ---
+
+      mainForm.addEventListener("submit", function (event) {
+        event.preventDefault();
+
+        // 1. Save Personal Data
+        const data = new FormData(this);
+        formData.personal = Object.fromEntries(data.entries());
+        formData.course = formData.personal.course;
+
+        // 2. Determine and show the correct Step 2 form
+        const selectedCourse = formData.course;
+        const targetPopup = document.querySelector(
+          `.enrollment-popup[data-for="${selectedCourse}"]`
+        );
+
+        if (targetPopup) {
+          showForm(targetPopup.id);
+        } else if (selectedCourse === "") {
+          alertMessage(
+            "Course Required",
+            "Please select a course to proceed to enrollment.",
+            "#dc2626"
+          );
+        } else {
+          alertMessage(
+            "Error",
+            `No enrollment form found for course: ${selectedCourse}`,
+            "#dc2626"
+          );
+        }
+      });
+
+      // --- STEP 2 HANDLER (Subject Enrollment) ---
+
+      document.querySelectorAll(".enrollment-popup").forEach((form) => {
+        // Only attach listener to forms that are not the review form
+        if (form.id.startsWith("subjectenroll")) {
+          form.addEventListener("submit", function (e) {
+            e.preventDefault();
+
+            const selectedSubjects = Array.from(
+              this.querySelectorAll('input[name="subjects"]:checked')
+            ).map((checkbox) => checkbox.value);
+
+            if (selectedSubjects.length === 0) {
+              alertMessage(
+                "Selection Required",
+                "You must select at least one subject to proceed to review.",
+                "#dc2626"
+              );
+              return;
+            }
+
+            // 1. Save Subjects
+            formData.subjects = selectedSubjects;
+
+            // 2. Go to Step 3 (Review)
+            showForm("reviewalldetails");
+
+            // 3. Render the review details
+            renderReviewDetails(formData);
+          });
+        }
+      });
+
+      // --- STEP 3 RENDERER (Review) ---
+
+      function renderReviewDetails(data) {
+        const tableContainer = document.querySelector(
+          "#reviewalldetails table"
+        );
+
+        // Helper to map course codes to full names
+        const courseMap = {
+          indtech: "BS Industrial Technology (BSIndTech)",
+          hospitalitymanagement: "BS Hospitality Management (BSHM)",
+          secondaryeduc: "BS Secondary Education (BSED)",
+        };
+        const courseFullName = courseMap[data.course] || data.course || "N/A";
+
+        // Function to generate a table row
+        const tr = (label, value) => `
+                <tr>
+                    <td style="font-weight: 600; width: 40%;">${label}</td>
+                    <td>${value}</td>
+                </tr>
+            `;
+
+        // Function to generate a section header
+        const sectionHeader = (title) => `
+                <tr><td colspan="2" class="section-header">${title}</td></tr>
+            `;
+
+        let tableHtml = `
+                <thead>
+                    <tr><th colspan="2">Application Review</th></tr>
+                </thead>
+                <tbody>
+            `;
+
+        // 1. Personal Information Section
+        tableHtml += sectionHeader("Personal Information");
+        tableHtml += tr("Full Name", data.personal.fullName || "N/A");
+        tableHtml += tr("Birthdate", data.personal.birthdate || "N/A");
+        tableHtml += tr("Gender", data.personal.gender || "N/A");
+        tableHtml += tr("Email", data.personal.email || "N/A");
+        tableHtml += tr("Phone Number", data.personal.phone || "N/A");
+
+        // 2. Course and Subject Enrollment Section
+        tableHtml += sectionHeader("Course & Subject Enrollment");
+        tableHtml += tr("Selected Course", courseFullName);
+
+        const subjectsList =
+          data.subjects && data.subjects.length > 0
+            ? `<ul style="list-style-type: disc; padding-left: 20px; margin: 0;">${data.subjects
+                .map((sub) => `<li>${sub}</li>`)
+                .join("")}</ul>`
+            : "No subjects selected.";
+
+        tableHtml += tr("Enrolled Subjects", subjectsList);
+
+        tableHtml += `
+                </tbody>
+                <tfoot>
+                    <tr>
+                        <td colspan="2" style="padding: 1.5rem; text-align: center; background-color: #f0f0f0;">
+                            <button id="finalSubmit" class="bg-green hover-green" style="padding: 15px 30px; font-size: 1.2rem;">
+                                Final Submit Application
+                            </button>
+                        </td>
+                    </tr>
+                </tfoot>
+            `;
+
+        tableContainer.innerHTML = tableHtml;
+
+        // Add final submit listener - MODIFIED to call the Firestore function
+        document
+          .getElementById("finalSubmit")
+          .addEventListener("click", submitApplicationToFirestore);
+      }
+
+      // --- INITIALIZATION ---
+
+      async function initializeAppAndAuth() {
+        if (!firebaseConfig) {
+          console.error(
+            "Firebase config not available. Cannot initialize Firestore."
+          );
+          authStatusEl.textContent = "Error: Firebase Config Missing";
+          return;
+        }
+
+        try {
+          const app = initializeApp(firebaseConfig);
+          db = getFirestore(app);
+          auth = getAuth(app);
+          authStatusEl.textContent = "Connecting...";
+
+          // Sign in with custom token if available, otherwise sign in anonymously
+          if (initialAuthToken) {
+            await signInWithCustomToken(auth, initialAuthToken);
+          } else {
+            await signInAnonymously(auth);
+          }
+
+          onAuthStateChanged(auth, (user) => {
+            if (user) {
+              userId = user.uid;
+              authStatusEl.textContent = "Authenticated";
+              userIdDisplayEl.textContent = `UID: ${userId}`;
+              console.log(
+                "Firebase initialized and user authenticated:",
+                userId
+              );
+
+              // Once authenticated, proceed with showing the T&C flow
+              termsContainer.style.display = "flex";
+              tcContentBox.style.display = "block";
+              declineMessage.style.display = "none";
+              mainForm.style.display = "none";
+              asideForm.style.display = "none";
+              updateProgressBar(0); // Set all steps to pending initially
+            } else {
+              authStatusEl.textContent = "Not Authenticated";
+              // Fallback in case of anonymous sign-in failure (though it shouldn't happen)
+              userId = crypto.randomUUID();
+              userIdDisplayEl.textContent = `Temp ID: ${userId}`;
+            }
+          });
+        } catch (error) {
+          console.error(
+            "Firebase initialization or authentication failed:",
+            error
+          );
+          authStatusEl.textContent = "Authentication Failed";
+          // Fallback to a temporary ID if auth fails completely
+          userId = crypto.randomUUID();
+          userIdDisplayEl.textContent = `Temp ID: ${userId}`;
+
+          // Still proceed with the UI flow even if persistence fails, but alert the user.
+          alertMessage(
+            "Setup Error",
+            "Failed to connect to the database. Application data will not be saved.",
+            "#dc2626"
+          );
+
+          termsContainer.style.display = "flex";
+          tcContentBox.style.display = "block";
+          declineMessage.style.display = "none";
+          mainForm.style.display = "none";
+          asideForm.style.display = "none";
+          updateProgressBar(0);
+        }
+      }
+
+      window.onload = initializeAppAndAuth;
+    </script>
   </body>
 </html>

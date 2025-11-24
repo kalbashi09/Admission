@@ -1,0 +1,1236 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Admission Form</title>
+    <!-- Tailwind CSS CDN for utilities and modern styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+      /* --- Custom CSS from user for specific styles and structure --- */
+      @import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap");
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: "Inter", sans-serif;
+      }
+
+      body {
+        background-color: #f4f4f4;
+        color: #333;
+        min-height: 100vh;
+        padding-bottom: 50px; /* Space for content */
+      }
+
+      .header1 {
+        text-align: center;
+        padding: 15px;
+        background-color: #004080;
+        color: white;
+      }
+
+      .header1 img {
+        width: 100px;
+        height: auto;
+      }
+
+      /* --- Global Layout --- */
+      /* Note: 'main' element in the provided HTML is now just a container inside .main-content-wrapper */
+
+      /* Terms and Conditions Modal/Overlay */
+      #terms-condition {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 1em;
+        background-color: #e0e0e0e0;
+        z-index: 999;
+      }
+
+      #terms-condition .tc-box {
+        background-color: white;
+        padding: 2em;
+        border-radius: 12px;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        max-width: 600px;
+        text-align: justify;
+        max-height: 90vh;
+        overflow-y: auto;
+        position: relative;
+      }
+
+      /* The decline message must overlap the T&C box when active */
+      #declineMessage {
+        position: absolute;
+        z-index: 1000;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 90%;
+        max-width: 450px;
+        padding: 3em;
+        border: 2px solid #f87171;
+        background-color: #fef2f2;
+        color: #b91c1c;
+        border-radius: 12px;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        text-align: center;
+      }
+
+      .tc-box h3 {
+        margin-bottom: 1em;
+        font-size: 1.5rem;
+        text-align: center;
+        color: #004080;
+      }
+
+      .tc-box .tc-content {
+        margin-bottom: 1.5em;
+        line-height: 1.6;
+        font-size: 14px;
+      }
+
+      .tc-box .tc-actions {
+        display: flex;
+        gap: 1rem;
+        justify-content: flex-end;
+        margin-top: 1rem;
+      }
+
+      .tc-actions button {
+        padding: 10px 20px;
+        cursor: pointer;
+        border-radius: 6px;
+        border: none;
+        font-weight: 600;
+        transition: background-color 0.2s;
+      }
+
+      #tc-accept {
+        background-color: #2563eb;
+        color: white;
+      }
+      #tc-accept:hover {
+        background-color: #1d4ed8;
+      }
+
+      #tc-decline {
+        background-color: #ffffff;
+        border: 1px solid #ef4444;
+        color: #ef4444;
+      }
+      #tc-decline:hover {
+        background-color: #fef2f2;
+      }
+
+      #reopenTerms {
+        padding: 10px 20px;
+        background-color: #dc2626;
+        color: white;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        margin-top: 20px;
+        width: 100%;
+      }
+      #reopenTerms:hover {
+        background-color: #b91c1c;
+      }
+
+      /* Main Form and Popups Container Styling */
+      .form-container {
+        width: 100%;
+        max-width: 800px; /* Max width for main form content */
+        position: relative;
+        display: flex;
+        justify-content: center;
+      }
+
+      #admissionForm,
+      .enrollment-popup {
+        padding: 2em;
+        background-color: white;
+        border-radius: 12px;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        display: none; /* Initially hidden, controlled by JS */
+        flex-direction: column;
+        gap: 1rem;
+        width: 100%; /* Ensure form takes full width of its container */
+      }
+
+      /* Responsive Layout: Desktop view */
+      @media (min-width: 1024px) {
+        .main-content-wrapper {
+          max-width: 1200px;
+          margin: 20px auto;
+          display: flex;
+          gap: 20px;
+          align-items: flex-start;
+        }
+
+        #form-aside {
+          position: sticky;
+          top: 20px;
+          flex: 0 0 250px;
+          display: block;
+          height: fit-content;
+        }
+        .form-container {
+          flex: 1;
+        }
+      }
+
+      /* Responsive Layout: Mobile view */
+      @media (max-width: 1023px) {
+        .main-content-wrapper {
+          flex-direction: column;
+          padding: 20px;
+        }
+        #form-aside {
+          position: relative;
+          width: 100%;
+          display: block; /* Show sidebar on mobile initially */
+        }
+      }
+
+      /* Form elements */
+      #admissionForm h3,
+      .enrollment-popup h3 {
+        font-size: 1.3rem;
+        color: #004080;
+        border-bottom: 2px solid #eee;
+        padding-bottom: 10px;
+        margin-bottom: 1rem;
+      }
+
+      #admissionForm label {
+        font-weight: 600;
+        margin-top: 10px;
+        display: block;
+      }
+
+      #admissionForm .gender label {
+        font-weight: 400; /* Reset font weight for radio button labels */
+      }
+
+      .form-grid {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 1rem;
+      }
+
+      @media (min-width: 600px) {
+        .form-grid {
+          grid-template-columns: repeat(2, 1fr);
+        }
+        .form-grid > .full-width {
+          grid-column: span 2;
+        }
+      }
+
+      /* Input and Select Styling */
+      input:not([type="radio"]):not([type="checkbox"]),
+      select {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 6px;
+        transition: border-color 0.2s;
+      }
+
+      input:focus,
+      select:focus {
+        outline: none;
+        border-color: #2563eb;
+        box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.2);
+      }
+
+      /* Submission Button */
+      button[type="submit"],
+      .btn-next {
+        background-color: #004080;
+        color: white;
+        padding: 12px 20px;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        margin-top: 1.5rem;
+        font-weight: 700;
+        transition: background-color 0.2s;
+      }
+      button[type="submit"]:hover,
+      .btn-next:hover {
+        background-color: #003366;
+      }
+
+      /* Go Back button (Close button for Popups) */
+      .btn-close {
+        background: #6b7280;
+        color: white;
+        border: none;
+        scale: calc(1);
+        height: 35px;
+        border-radius: 10px;
+        margin-top: 2em;
+        padding: 10px 20px; /* Added padding to match other buttons */
+      }
+      .btn-close:hover {
+        background: #4b5563;
+      }
+
+      .button-group {
+        display: flex;
+        gap: 1rem;
+        margin-top: 1.5rem;
+        padding-top: 1rem;
+        border-top: 1px solid #eee;
+      }
+      .button-group button {
+        flex: 1;
+      }
+
+      /* Form Aside (Sidebar) */
+      #form-aside {
+        padding: 1.5em;
+        background-color: #ffffff;
+        border-radius: 12px;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+      }
+
+      /* --- PROGRESS TRACKER CSS --- */
+      .progresstrack h4 {
+        margin-bottom: 1.5rem;
+        font-size: 1.25rem;
+        color: #004080;
+        border-bottom: 1px solid #eee;
+        padding-bottom: 0.5rem;
+      }
+
+      .stepper-wrapper {
+        position: relative;
+        padding-left: 10px;
+      }
+
+      .stepper-line {
+        position: absolute;
+        left: 25px;
+        top: 5px;
+        bottom: 0;
+        width: 2px;
+        background-color: #e5e7eb;
+        z-index: 0;
+      }
+
+      .stepper-list {
+        list-style: none;
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        gap: 2rem;
+        padding: 0;
+        margin: 0;
+      }
+
+      .step-item {
+        display: flex;
+        align-items: flex-start;
+        gap: 10px;
+        position: relative;
+        z-index: 1;
+      }
+
+      .circle {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        font-weight: bold;
+        font-size: 14px;
+        flex-shrink: 0;
+        background-color: white;
+        border: 2px solid #e5e7eb;
+        color: #9ca3af;
+        transition: all 0.3s ease;
+      }
+
+      .circle.completed {
+        background-color: #22c55e; /* Green */
+        border-color: #22c55e;
+        color: white;
+      }
+
+      .circle.active {
+        background-color: #2563eb; /* Blue */
+        border-color: #2563eb;
+        color: white;
+      }
+
+      .step-content {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        min-height: 32px;
+      }
+
+      .step-title {
+        font-size: 14px;
+        font-weight: 600;
+        color: #374151;
+        line-height: 1.2;
+      }
+
+      .step-subtitle {
+        font-size: 11px;
+        color: #9ca3af;
+      }
+
+      .circle.active + .step-content .step-title,
+      .circle.completed + .step-content .step-title {
+        color: #004080;
+      }
+
+      .circle.active + .step-content .step-subtitle {
+        color: #2563eb;
+      }
+
+      /* Review Table Styling (Step 3) */
+      #reviewalldetails table {
+        width: 100%;
+        border-collapse: collapse;
+        border-radius: 12px;
+        overflow: hidden;
+        margin-top: 1rem;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+      }
+
+      #reviewalldetails thead {
+        background-color: #004080;
+        color: white;
+      }
+
+      #reviewalldetails thead th {
+        padding: 15px;
+        font-size: 1.5rem;
+        text-align: left;
+      }
+
+      #reviewalldetails tbody tr:nth-child(even) {
+        background-color: #f9f9f9;
+      }
+
+      #reviewalldetails tbody td {
+        padding: 12px 15px;
+        border-bottom: 1px solid #eee;
+      }
+
+      #reviewalldetails .section-header {
+        background-color: #e0f2fe; /* Light blue */
+        color: #004080;
+        font-weight: 700;
+        font-size: 1.1rem;
+      }
+
+      /* Custom Alert Box */
+      #customAlert {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.6);
+        display: none; /* Controlled by JS */
+        justify-content: center;
+        align-items: center;
+        z-index: 10000;
+      }
+      #customAlert .alert-box {
+        background: white;
+        padding: 2rem;
+        border-radius: 12px;
+        max-width: 400px;
+        text-align: center;
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+      }
+      #customAlert h4 {
+        font-size: 1.5rem;
+        margin-bottom: 0.5rem;
+        color: #004080;
+      }
+      #customAlert p {
+        margin-bottom: 1.5rem;
+        color: #6b7280;
+      }
+      #customAlert button {
+        width: 100%;
+        padding: 10px;
+        border: none;
+        border-radius: 6px;
+        color: white;
+        font-weight: 600;
+        cursor: pointer;
+        transition: background-color 0.2s;
+      }
+
+      /* Final submit button styling */
+      #finalSubmit {
+        border-radius: 10px;
+        border: none;
+        box-shadow: 2px 0 5px rgba(0, 0, 0, 0.2);
+      }
+
+      /* Utility classes for JS alert */
+      .bg-blue {
+        background-color: #2563eb;
+      }
+      .bg-red {
+        background-color: #dc2626;
+      }
+      .bg-green {
+        background-color: #22c55e;
+      }
+      .hover-blue:hover {
+        background-color: #1d4ed8;
+      }
+      .hover-red:hover {
+        background-color: #b91c1c;
+      }
+      .hover-green:hover {
+        background-color: #15803d;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Custom Alert/Message Box UI -->
+    <div id="customAlert">
+      <div class="alert-box">
+        <h4 id="alertTitle"></h4>
+        <p id="alertMessage"></p>
+        <button id="alertCloseBtn" class="bg-blue hover-blue">Close</button>
+      </div>
+    </div>
+
+    <!-- Terms and Condition Modal -->
+    <div id="terms-condition">
+      <!-- DECLINE MESSAGE -->
+      <div id="declineMessage" style="display: none">
+        <h3 style="margin-bottom: 10px">Application Blocked</h3>
+        <p>
+          You have declined the Terms and Conditions. You cannot proceed with
+          the application until you accept them.
+        </p>
+        <button id="reopenTerms">Review Terms</button>
+      </div>
+
+      <!-- T&C CONTENT CONTAINER -->
+      <div id="tcContentBox" class="tc-box">
+        <h3>Terms and condition</h3>
+        <div class="tc-content">
+          <p>
+            By accessing and using this admission form, you agree to comply with
+            the following terms and conditions:
+          </p>
+          <ol class="list-decimal pl-5">
+            <li>
+              <strong>Accuracy of Information:</strong> You agree to provide
+              accurate and truthful information in all fields of the admission
+              form. Any false or misleading information may result in the
+              rejection of your application.
+            </li>
+            <li>
+              <strong>Data Privacy:</strong> You consent to the collection,
+              storage, and processing of your personal data as outlined in our
+              Privacy Policy. Your information will be used solely for the
+              purpose of processing your admission application.
+            </li>
+            <li>
+              <strong>Eligibility:</strong> You confirm that you meet all the
+              eligibility criteria for the course you are applying for. It is
+              your responsibility to ensure that you fulfill the necessary
+              requirements.
+            </li>
+            <li>
+              <strong>Submission Deadline:</strong> You acknowledge that it is
+              your responsibility to submit the completed admission form before
+              the specified deadline. Late submissions may not be considered.
+            </li>
+            <li>
+              <strong>Acceptance of Terms:</strong> By submitting the admission
+              form, you agree to abide by all the rules, regulations, and
+              policies of the institution.
+            </li>
+          </ol>
+          <p>
+            If you do not agree with any of these terms and conditions, please
+            refrain from using this admission form.
+          </p>
+        </div>
+        <div class="tc-actions">
+          <button id="tc-accept">Accept</button>
+          <button id="tc-decline">Decline</button>
+        </div>
+      </div>
+    </div>
+
+    <header>
+      <div class="header1">
+        <!-- Using a standard placeholder image -->
+        <img
+          src="/IMG/TCClogo1.png"
+          alt="logo"
+          onerror="this.onerror=null; this.src='https://placehold.co/100x40/004080/FFFFFF?text=TCC';"
+        />
+        <h2>Admission Application</h2>
+      </div>
+    </header>
+
+    <div class="main-content-wrapper">
+      <!-- Aside (Progress Tracker) -->
+      <aside id="form-aside">
+        <div class="progresstrack">
+          <h4>Progress</h4>
+          <div class="stepper-wrapper">
+            <div class="stepper-line"></div>
+            <ul class="stepper-list">
+              <li id="step1-item" class="step-item">
+                <div id="step1-circle" class="circle">1</div>
+                <div class="step-content">
+                  <span class="step-title">Personal Info</span>
+                  <span id="step1-subtitle" class="step-subtitle">Pending</span>
+                </div>
+              </li>
+              <li id="step2-item" class="step-item">
+                <div id="step2-circle" class="circle">2</div>
+                <div class="step-content">
+                  <span class="step-title">Course Enrollment</span>
+                  <span id="step2-subtitle" class="step-subtitle">Pending</span>
+                </div>
+              </li>
+              <li id="step3-item" class="step-item">
+                <div id="step3-circle" class="circle">3</div>
+                <div class="step-content">
+                  <span class="step-title">Review & Submit</span>
+                  <span id="step3-subtitle" class="step-subtitle">Pending</span>
+                </div>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </aside>
+
+      <main class="form-container">
+        <!-- Main Form (Step 1) -->
+        <form id="admissionForm">
+          <h3>Personal Information</h3>
+          <div class="form-grid">
+            <div class="full-width">
+              <label for="fullName">Full Name:</label>
+              <input type="text" id="fullName" name="fullName" required />
+            </div>
+
+            <div>
+              <label for="birthdate">Birthdate:</label>
+              <input type="date" id="birthdate" name="birthdate" required />
+            </div>
+
+            <div>
+              <label for="email">Email:</label>
+              <input type="email" id="email" name="email" required />
+            </div>
+
+            <div class="full-width">
+              <label>Gender:</label>
+              <div style="display: flex; gap: 10px">
+                <label for="genderMale" class="gender">
+                  <input
+                    type="radio"
+                    name="gender"
+                    id="genderMale"
+                    value="Male"
+                    required
+                  />
+                  Male
+                </label>
+                <label for="genderFemale" class="gender">
+                  <input
+                    type="radio"
+                    name="gender"
+                    id="genderFemale"
+                    value="Female"
+                  />
+                  Female
+                </label>
+              </div>
+            </div>
+
+            <div class="full-width">
+              <label for="phone">Phone Number:</label>
+              <input type="tel" id="phone" name="phone" required />
+            </div>
+          </div>
+
+          <h3 style="margin-top: 1.5rem">Course Selection</h3>
+          <div>
+            <label for="course">Select Course:</label>
+            <select id="course" name="course" required>
+              <option value="">--Please choose an option--</option>
+              <option value="indtech">
+                BS Industrial Technology (BSIndTech)
+              </option>
+              <option value="hospitalitymanagement">
+                BS Hospitality Management (BSHM)
+              </option>
+              <option value="secondaryeduc">
+                BS Secondary Education (BSED)
+              </option>
+            </select>
+          </div>
+
+          <button type="submit">Proceed to Subject Enrollment (Step 2)</button>
+        </form>
+
+        <!-- === STEP 2 FORMS === -->
+
+        <!-- 1. BSHM Form -->
+        <form
+          id="subjectenroll"
+          class="enrollment-popup"
+          data-for="hospitalitymanagement"
+        >
+          <h3>Step 2: Subject Enrollment for BSHM</h3>
+          <label>Select Subjects (Choose at least one):</label>
+          <div
+            style="
+              display: flex;
+              flex-direction: column;
+              gap: 0.5rem;
+              margin-top: 0.5rem;
+              padding: 1rem;
+              border: 1px solid #ccc;
+              border-radius: 6px;
+            "
+          >
+            <label
+              ><input
+                type="checkbox"
+                name="subjects"
+                value="Food and Beverage"
+              />
+              Food and Beverage</label
+            >
+            <label
+              ><input
+                type="checkbox"
+                name="subjects"
+                value="Front Office Management"
+              />
+              Front Office Management</label
+            >
+            <label
+              ><input type="checkbox" name="subjects" value="Culinary Arts" />
+              Culinary Arts</label
+            >
+          </div>
+          <div class="button-group">
+            <button
+              type="button"
+              class="btn-close"
+              onclick="closePopup('subjectenroll')"
+            >
+              Go Back
+            </button>
+            <button type="submit" class="btn-next">
+              Review Application (Step 3)
+            </button>
+          </div>
+        </form>
+
+        <!-- 2. BSIndTech Form -->
+        <form id="subjectenroll1" class="enrollment-popup" data-for="indtech">
+          <h3>Step 2: Subject Enrollment for BSIndTech</h3>
+          <label>Select Subjects (Choose at least one):</label>
+          <div
+            style="
+              display: flex;
+              flex-direction: column;
+              gap: 0.5rem;
+              margin-top: 0.5rem;
+              padding: 1rem;
+              border: 1px solid #ccc;
+              border-radius: 6px;
+            "
+          >
+            <label
+              ><input
+                type="checkbox"
+                name="subjects"
+                value="Computer Technology"
+              />
+              Computer Technology</label
+            >
+            <label
+              ><input type="checkbox" name="subjects" value="Electronics" />
+              Electronics</label
+            >
+            <label
+              ><input
+                type="checkbox"
+                name="subjects"
+                value="Automotive Repair"
+              />
+              Automotive Repair</label
+            >
+          </div>
+          <div class="button-group">
+            <button
+              type="button"
+              class="btn-close"
+              onclick="closePopup('subjectenroll1')"
+            >
+              Go Back
+            </button>
+            <button type="submit" class="btn-next">
+              Review Application (Step 3)
+            </button>
+          </div>
+        </form>
+
+        <!-- 3. BSED Form -->
+        <form
+          id="subjectenroll2"
+          class="enrollment-popup"
+          data-for="secondaryeduc"
+        >
+          <h3>Step 2: Subject Enrollment for BSED</h3>
+          <label>Select Subjects (Choose at least one):</label>
+          <div
+            style="
+              display: flex;
+              flex-direction: column;
+              gap: 0.5rem;
+              margin-top: 0.5rem;
+              padding: 1rem;
+              border: 1px solid #ccc;
+              border-radius: 6px;
+            "
+          >
+            <label
+              ><input type="checkbox" name="subjects" value="Mathematics" />
+              Mathematics</label
+            >
+            <label
+              ><input type="checkbox" name="subjects" value="Science" />
+              Science</label
+            >
+            <label
+              ><input
+                type="checkbox"
+                name="subjects"
+                value="English Literature"
+              />
+              English Literature</label
+            >
+          </div>
+          <div class="button-group">
+            <button
+              type="button"
+              class="btn-close"
+              onclick="closePopup('subjectenroll2')"
+            >
+              Go Back
+            </button>
+            <button type="submit" class="btn-next">
+              Review Application (Step 3)
+            </button>
+          </div>
+        </form>
+
+        <!-- Review Details (Step 3) -->
+        <div id="reviewalldetails" class="enrollment-popup">
+          <table>
+            <!-- Content injected by JavaScript -->
+          </table>
+          <div class="button-group">
+            <button
+              type="button"
+              class="btn-close"
+              onclick="closePopup('reviewalldetails')"
+            >
+              Go Back to Subjects (Step 2)
+            </button>
+            <!-- Final submit button is injected into the table footer by renderReviewDetails -->
+          </div>
+        </div>
+      </main>
+    </div>
+
+    <script>
+      // --- JAVASCRIPT LOGIC FROM USER ---
+
+      let formData = {
+        personal: {},
+        course: "",
+        subjects: [],
+      };
+
+      // --- DOM ELEMENTS ---
+      const termsContainer = document.getElementById("terms-condition");
+      const tcContentBox = document.getElementById("tcContentBox");
+      const acceptBtn = document.getElementById("tc-accept");
+      const declineBtn = document.getElementById("tc-decline");
+      const mainForm = document.getElementById("admissionForm");
+      const courseSelect = document.getElementById("course");
+      const declineMessage = document.getElementById("declineMessage");
+      const reopenTermsBtn = document.getElementById("reopenTerms");
+      const asideForm = document.getElementById("form-aside");
+
+      // Progress Bar Elements
+      const step1Circle = document.getElementById("step1-circle");
+      const step2Circle = document.getElementById("step2-circle");
+      const step3Circle = document.getElementById("step3-circle");
+      const step1Subtitle = document.getElementById("step1-subtitle");
+      const step2Subtitle = document.getElementById("step2-subtitle");
+      const step3Subtitle = document.getElementById("step3-subtitle");
+
+      const alertModal = document.getElementById("customAlert");
+      const alertTitle = document.getElementById("alertTitle");
+      const alertMessageEl = document.getElementById("alertMessage");
+      const alertCloseBtn = document.getElementById("alertCloseBtn");
+
+      // --- UTILITY FUNCTIONS ---
+
+      /**
+       * Custom alert replacement for window.alert() and window.confirm()
+       */
+      function alertMessage(title, message, color = "#2563eb") {
+        alertTitle.textContent = title;
+        alertMessageEl.textContent = message;
+
+        // Set button color and hover class
+        const button = alertCloseBtn;
+        button.style.backgroundColor = color;
+
+        if (color === "#2563eb") button.className = "bg-blue hover-blue";
+        else if (color === "#dc2626") button.className = "bg-red hover-red";
+        else if (color === "#22c55e") button.className = "bg-green hover-green";
+        else button.className = "";
+
+        alertModal.style.display = "flex";
+      }
+
+      alertCloseBtn.addEventListener("click", () => {
+        alertModal.style.display = "none";
+      });
+
+      /**
+       * Shows the specified form/step element and hides all others.
+       * The element must have the class 'enrollment-popup' or be 'admissionForm'.
+       */
+      function showForm(formId) {
+        const formElements = [
+          mainForm,
+          ...document.querySelectorAll(".enrollment-popup"),
+        ];
+
+        formElements.forEach((element) => {
+          element.style.display = element.id === formId ? "flex" : "none";
+        });
+
+        // If we are showing the review details, the back button should go to the subject form
+        if (formId === "reviewalldetails") {
+          const backButton = document.querySelector(
+            "#reviewalldetails .btn-close"
+          );
+          const lastSubjectForm = Array.from(
+            document.querySelectorAll(".enrollment-popup")
+          ).find((f) => f.dataset.for === formData.course);
+
+          // Use the ID of the specific Step 2 form, or Step 1 if something went wrong
+          const lastSubjectFormId = lastSubjectForm
+            ? lastSubjectForm.id
+            : "admissionForm";
+
+          // If a back button exists, set its onclick to go to the specific Step 2 form.
+          if (backButton) {
+            // Note: closePopup handles showing the target form correctly.
+            backButton.onclick = () =>
+              closePopup("reviewalldetails", lastSubjectFormId);
+            backButton.textContent = "Go Back to Subjects (Step 2)";
+          }
+        } else if (formId.startsWith("subjectenroll")) {
+          // If we are showing a Step 2 form, the back button should go to Step 1
+          const subjectForm = document.getElementById(formId);
+          const backButton = subjectForm.querySelector(".btn-close");
+          if (backButton) {
+            backButton.onclick = () => closePopup(formId, "admissionForm");
+            backButton.textContent = "Go Back";
+          }
+        }
+
+        // Determine the current step index
+        let step = 1;
+        if (
+          formId.startsWith("subjectenroll") &&
+          formId !== "reviewalldetails"
+        ) {
+          step = 2;
+        } else if (formId === "reviewalldetails") {
+          step = 3;
+        }
+        updateProgressBar(step);
+      }
+
+      /**
+       * Updates the visual progress tracker (stepper).
+       */
+      function updateProgressBar(step) {
+        const steps = [
+          { circle: step1Circle, subtitle: step1Subtitle },
+          { circle: step2Circle, subtitle: step2Subtitle },
+          { circle: step3Circle, subtitle: step3Subtitle },
+        ];
+
+        steps.forEach((el, index) => {
+          const currentStep = index + 1;
+
+          el.circle.classList.remove("active", "completed");
+          el.subtitle.textContent = "Pending";
+          el.subtitle.style.color = "#9ca3af";
+
+          if (currentStep < step) {
+            el.circle.classList.add("completed");
+            el.subtitle.textContent = "Completed";
+          } else if (currentStep === step) {
+            el.circle.classList.add("active");
+            el.subtitle.textContent =
+              currentStep === 3 ? "Reviewing" : "In Progress";
+          }
+        });
+      }
+
+      /**
+       * Handles navigation back from Step 2/3 to a previous step.
+       * @param {string} currentFormId - The ID of the form being closed.
+       * @param {string} [targetFormId='admissionForm'] - The ID of the form to go back to.
+       */
+      function closePopup(currentFormId, targetFormId = "admissionForm") {
+        // 1. Hide the current form/div
+        document.getElementById(currentFormId).style.display = "none";
+
+        // 2. Show the target form (defaults to Step 1)
+        showForm(targetFormId);
+      }
+
+      // --- TERMS & CONDITIONS LOGIC ---
+
+      if (acceptBtn) {
+        acceptBtn.addEventListener("click", function () {
+          termsContainer.style.display = "none";
+          asideForm.style.display = "block";
+          showForm(mainForm.id); // Show Step 1
+        });
+      }
+
+      if (declineBtn) {
+        declineBtn.addEventListener("click", function () {
+          tcContentBox.style.display = "none";
+          declineMessage.style.display = "block"; // Show persistent decline message
+          mainForm.style.display = "none";
+          asideForm.style.display = "none";
+          alertMessage(
+            "Application Blocked",
+            "You must accept the Terms and Conditions to proceed.",
+            "#dc2626"
+          );
+          updateProgressBar(0);
+        });
+      }
+
+      if (reopenTermsBtn) {
+        reopenTermsBtn.addEventListener("click", function () {
+          declineMessage.style.display = "none";
+          tcContentBox.style.display = "block";
+        });
+      }
+
+      // --- STEP 1 HANDLER (Personal Info & Course) ---
+
+      mainForm.addEventListener("submit", function (event) {
+        event.preventDefault();
+
+        // 1. Save Personal Data
+        const data = new FormData(this);
+        // Clean and validate data before saving
+        const personalData = Object.fromEntries(data.entries());
+        if (!personalData.course) {
+          alertMessage(
+            "Course Required",
+            "Please select a course to proceed to enrollment.",
+            "#dc2626"
+          );
+          return;
+        }
+
+        formData.personal = personalData;
+        formData.course = personalData.course;
+
+        // 2. Determine and show the correct Step 2 form
+        const selectedCourse = formData.course;
+        const targetPopup = document.querySelector(
+          `.enrollment-popup[data-for="${selectedCourse}"]`
+        );
+
+        if (targetPopup) {
+          showForm(targetPopup.id);
+        } else {
+          alertMessage(
+            "Error",
+            `No enrollment form found for course: ${selectedCourse}`,
+            "#dc2626"
+          );
+        }
+      });
+
+      // --- STEP 2 HANDLER (Subject Enrollment) ---
+
+      document.querySelectorAll(".enrollment-popup").forEach((form) => {
+        // Only attach listener to forms that are not the review form
+        if (form.id.startsWith("subjectenroll")) {
+          form.addEventListener("submit", function (e) {
+            e.preventDefault();
+
+            const selectedSubjects = Array.from(
+              this.querySelectorAll('input[name="subjects"]:checked')
+            ).map((checkbox) => checkbox.value);
+
+            if (selectedSubjects.length === 0) {
+              alertMessage(
+                "Selection Required",
+                "You must select at least one subject to proceed to review.",
+                "#dc2626"
+              );
+              return;
+            }
+
+            // 1. Save Subjects
+            formData.subjects = selectedSubjects;
+
+            // 2. Go to Step 3 (Review)
+            showForm("reviewalldetails");
+
+            // 3. Render the review details
+            renderReviewDetails(formData);
+          });
+        }
+      });
+
+      // --- STEP 3 RENDERER (Review) ---
+
+      function renderReviewDetails(data) {
+        const tableContainer = document.querySelector(
+          "#reviewalldetails table"
+        );
+
+        // Helper to map course codes to full names
+        const courseMap = {
+          indtech: "BS Industrial Technology (BSIndTech)",
+          hospitalitymanagement: "BS Hospitality Management (BSHM)",
+          secondaryeduc: "BS Secondary Education (BSED)",
+        };
+        const courseFullName = courseMap[data.course] || data.course || "N/A";
+
+        // Function to generate a table row
+        const tr = (label, value) => `
+					<tr>
+						<td style="font-weight: 600; width: 40%;">${label}</td>
+						<td>${value}</td>
+					</tr>
+				`;
+
+        // Function to generate a section header
+        const sectionHeader = (title) => `
+					<tr><td colspan="2" class="section-header">${title}</td></tr>
+				`;
+
+        let tableHtml = `
+					<thead>
+						<tr><th colspan="2">Application Review</th></tr>
+					</thead>
+					<tbody>
+				`;
+
+        // 1. Personal Information Section
+        tableHtml += sectionHeader("Personal Information");
+        tableHtml += tr("Full Name", data.personal.fullName || "N/A");
+        tableHtml += tr("Birthdate", data.personal.birthdate || "N/A");
+        tableHtml += tr("Gender", data.personal.gender || "N/A");
+        tableHtml += tr("Email", data.personal.email || "N/A");
+        tableHtml += tr("Phone Number", data.personal.phone || "N/A");
+
+        // 2. Course and Subject Enrollment Section
+        tableHtml += sectionHeader("Course & Subject Enrollment");
+        tableHtml += tr("Selected Course", courseFullName);
+
+        const subjectsList =
+          data.subjects && data.subjects.length > 0
+            ? `<ul style="list-style-type: disc; padding-left: 20px; margin: 0;">${data.subjects
+                .map((sub) => `<li>${sub}</li>`)
+                .join("")}</ul>`
+            : "No subjects selected.";
+
+        tableHtml += tr("Enrolled Subjects", subjectsList);
+
+        tableHtml += `
+					</tbody>
+					<tfoot>
+						<tr>
+							<td colspan="2" style="padding: 1.5rem; text-align: center; background-color: #f0f0f0;">
+								<button id="finalSubmit" class="bg-green hover-green" style="padding: 15px 30px; font-size: 1.2rem;">
+									Final Submit Application
+								</button>
+							</td>
+						</tr>
+					</tfoot>
+				`;
+
+        tableContainer.innerHTML = tableHtml;
+
+        // Add final submit listener
+        document.getElementById("finalSubmit").addEventListener("click", () => {
+          // Prevent multiple submissions
+          const submitBtn = document.getElementById("finalSubmit");
+          if (submitBtn.disabled) return;
+
+          alertMessage(
+            "Application Submitted!",
+            "Thank you! Your application for " +
+              courseFullName +
+              " has been submitted successfully for review.",
+            "#22c55e"
+          );
+          submitBtn.disabled = true;
+          submitBtn.textContent = "Application Submitted";
+        });
+      }
+
+      // --- INITIALIZATION ---
+      window.onload = function () {
+        // Ensure the T&C modal is visible first
+        termsContainer.style.display = "flex";
+        tcContentBox.style.display = "block";
+        declineMessage.style.display = "none";
+        mainForm.style.display = "none";
+        asideForm.style.display = "none";
+        updateProgressBar(0); // Set all steps to pending initially
+      };
+    </script>
+  </body>
+</html>

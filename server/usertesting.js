@@ -1,79 +1,199 @@
-// ../scripts/login.js
-
-// 1. Define a list of valid tickets
-// In a real application, this list would be fetched securely from a server-side database.
-// For this client-side example, we'll use a hardcoded array.
-const VALID_TICKETS = [
-  "TCC2024-ADMIT-001",
-  "TCC2024-ADMIT-002",
-  "TCC2024-ADMIT-003",
-  "TEST-TICKET-A1",
-  "SUCCESS", // Example for easy testing
-];
+// 1. Define the API endpoint for ticket validation
+const VALIDATION_API_URL = "http://localhost:3000/api/validate-ticket";
 
 // 2. Define the page to redirect to upon successful validation
-const NEXT_PAGE_URL = "/client/pages/form.html"; // Change this to your actual next page
+const NEXT_PAGE_URL = "/client/pages/form.html";
 
 // 3. Get the form and input elements
+// Changed to use querySelector(".input-area") to match the original script's logic,
+// though form itself is often more reliable
 const form = document.querySelector(".input-area");
 const ticketInput = document.getElementById("ticketinput");
 const submitButton = document.getElementById("submitbtn");
 
+// ⭐️ NEW: Select the <h4> element inside the button for text changes
+const submitButtonText = submitButton ? submitButton.querySelector("h4") : null;
+
+// --- Alert Modal Elements (Must be present in the HTML where this script runs) ---
+const alertModal = document.getElementById("customAlert");
+const alertContent = document.getElementById("alertContent");
+const alertIcon = document.getElementById("alertIcon");
+const alertTitle = document.getElementById("alertTitle");
+const alertMessageEl = document.getElementById("alertMessage");
+const alertCloseBtn = document.getElementById("alertCloseBtn");
+
+// --- UTILITY FUNCTIONS ---
+
 /**
- * Handles the ticket submission and verification.
- * @param {Event} event The form submission event.
+ * Custom alert replacement for window.alert() and window.confirm()
+ * NOTE: This function requires the 'customAlert' modal structure in the HTML.
  */
-function handleTicketSubmission(event) {
-  // Prevent the default form submission (which would cause a page reload)
-  event.preventDefault();
-
-  // Clear any previous error message
-  removeErrorMessage();
-
-  const enteredTicket = ticketInput.value.trim(); // Trim whitespace and convert to uppercase for robust matching
-
-  // Check if the entered ticket is in the list of valid tickets
-  if (VALID_TICKETS.includes(enteredTicket)) {
-    // --- Success Case ---
-    // Redirect the user to the next page
-    alert("Ticket Verified! Proceeding to the application form.");
-    window.location.href = NEXT_PAGE_URL;
-  } else {
-    // --- Failure Case ---
-    // Display an error message to the user
-    displayErrorMessage(
-      "Invalid ticket. Please check your ticket number and try again."
+function alertMessage(title, message, color = "#2563eb") {
+  // Check if modal elements exist before trying to use them
+  if (
+    !alertModal ||
+    !alertTitle ||
+    !alertMessageEl ||
+    !alertCloseBtn ||
+    !alertIcon ||
+    !alertContent
+  ) {
+    console.error(
+      "Custom alert elements not found. Falling back to console log."
     );
-  }
-}
-
-/**
- * Creates and displays an error message below the input field.
- * @param {string} message The error message to display.
- */
-function displayErrorMessage(message) {
-  // Check if an error message already exists to avoid duplicates
-  if (document.getElementById("ticket-error-message")) {
+    console.log(`ALERT: ${title} - ${message}`);
     return;
   }
 
+  alertTitle.textContent = title;
+  alertMessageEl.textContent = message;
+
+  // Set button color and modal styles
+  alertCloseBtn.style.backgroundColor = color;
+  alertContent.style.borderColor = color;
+  alertIcon.style.color = color;
+
+  // Set hover style and icon path
+  let iconPath = "";
+  if (color === "#2563eb") {
+    alertCloseBtn.className = "modal-close-btn hover-blue";
+    iconPath = `<path stroke-linecap="round" stroke-linejoin="round" stroke-width="5" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />`;
+  } else if (color === "#dc2626") {
+    alertCloseBtn.className = "modal-close-btn hover-red";
+    iconPath = `<path stroke-linecap="round" stroke-linejoin="round" stroke-width="5" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />`;
+  } else if (color === "#22c55e") {
+    alertCloseBtn.className = "modal-close-btn hover-green";
+    iconPath = `<path stroke-linecap="round" stroke-linejoin="round" stroke-width="5" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />`;
+  } else {
+    alertCloseBtn.className = "modal-close-btn";
+  }
+  alertIcon.innerHTML = iconPath;
+
+  alertModal.style.display = "flex";
+}
+
+// Attach close listener for the custom alert
+if (alertCloseBtn) {
+  alertCloseBtn.addEventListener("click", () => {
+    alertModal.style.display = "none";
+  });
+}
+
+/**
+ * Handles the ticket submission and verification by calling the server API.
+ * @param {Event} event The form submission event.
+ */
+async function handleTicketSubmission(event) {
+  event.preventDefault(); // Prevent default form submission
+  removeErrorMessage(); // Clear any previous error message
+
+  const enteredTicket = ticketInput.value.trim();
+  if (!enteredTicket) {
+    displayErrorMessage("Please enter your admission ticket code.");
+    return;
+  }
+
+  // Disable the button to prevent multiple submissions
+  submitButton.disabled = true;
+
+  // ⭐️ FIX APPLIED: Change only the text content of the H4 tag
+  const originalButtonText = "Submit your ticket";
+  if (submitButtonText) {
+    submitButtonText.textContent = "Verifying...";
+  } else {
+    // Fallback for unexpected button structure
+    submitButton.innerHTML = "Verifying...";
+  }
+
+  try {
+    // === NEW: SIMULATE NETWORK DELAY (5 seconds) ===
+    console.log("Simulating 5-second network latency...");
+    await new Promise((resolve) => setTimeout(resolve, 5000));
+    // ===========================================
+
+    const response = await fetch(VALIDATION_API_URL, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      // Send the ticket code to the server in JSON format
+      body: JSON.stringify({ ticketCode: enteredTicket }),
+    });
+
+    // Parse the JSON response from the server
+    const result = await response.json();
+
+    if (response.ok && result.success) {
+      // --- Success Case ---
+      sessionStorage.setItem("validatedTicket", enteredTicket);
+
+      // ⭐️ FIX: Replacing alert() with custom alertMessage()
+      alertMessage(
+        "Ticket Verified!",
+        `Proceeding to the application form. Ticket: ${enteredTicket}`,
+        "#22c55e" // Green
+      );
+
+      // Delay redirection slightly so the user can see the success message
+      setTimeout(() => {
+        window.location.href = NEXT_PAGE_URL;
+      }, 1500);
+    } else {
+      // --- Failure Case ---
+      const message =
+        result.message ||
+        "Ticket validation failed. Please check your ticket and try again.";
+      // Use result.message for server-side validation errors (e.g., ticket expired/used)
+      alertMessage(
+        "Validation Failed",
+        message,
+        "#dc2626" // Red
+      );
+      displayErrorMessage(message);
+    }
+  } catch (error) {
+    // Handle network errors (e.g., server is offline)
+    console.error("Fetch error:", error);
+    const message =
+      "Could not connect to the validation service. Please check your network or try again later.";
+    alertMessage(
+      "Connection Error",
+      message,
+      "#dc2626" // Red
+    );
+    displayErrorMessage(message);
+  } finally {
+    // Re-enable the button regardless of success or failure
+    submitButton.disabled = false;
+
+    // ⭐️ FIX APPLIED: Revert the text content of the H4 tag
+    if (submitButtonText) {
+      submitButtonText.textContent = originalButtonText;
+    } else {
+      // Fallback
+      submitButton.innerHTML = originalButtonText;
+    }
+  }
+}
+
+// Keep your utility functions as they are
+function displayErrorMessage(message) {
+  if (document.getElementById("ticket-error-message")) {
+    return;
+  }
   const errorMessage = document.createElement("p");
   errorMessage.id = "ticket-error-message";
-  errorMessage.style.color = "red";
-  errorMessage.style.marginTop = "10px";
-  errorMessage.style.fontWeight = "bold";
+  // Styling is now handled mostly by CSS selector #ticket-error-message
   errorMessage.textContent = message;
 
-  // Insert the error message after the ticket entry div
-  const ticketEntryDiv = document.querySelector(".ticket-entry");
+  // Revert to using querySelector(".input-area") to match original JS logic
+  const ticketEntryDiv = document.querySelector(".input-area");
   if (ticketEntryDiv) {
+    // Append the error message
     ticketEntryDiv.appendChild(errorMessage);
   }
 }
 
-/**
- * Removes the existing error message from the DOM.
- */
 function removeErrorMessage() {
   const existingError = document.getElementById("ticket-error-message");
   if (existingError) {

@@ -34,25 +34,38 @@ const alertCloseBtn = document.getElementById("alertCloseBtn");
  * Custom alert replacement for window.alert() and window.confirm()
  */
 function alertMessage(title, message, color = "#2563eb") {
-  alertTitle.textContent = title;
-  alertMessageEl.textContent = message;
+  // We use a try...catch here because this function was the source of a UI crash
+  try {
+    alertTitle.textContent = title;
+    alertMessageEl.textContent = message; // Set button color and class for hover effects
 
-  // Set button color
-  const button = alertCloseBtn;
-  button.style.backgroundColor = color;
+    const button = alertCloseBtn;
+    button.style.backgroundColor = color;
 
-  // Set hover style (simple approach for inline styling)
-  if (color === "#2563eb") button.className = "hover-blue";
-  else if (color === "#dc2626") button.className = "hover-red";
-  else if (color === "#22c55e") button.className = "hover-green";
-  else button.className = "";
+    if (color === "#2563eb") button.className = "hover-blue";
+    else if (color === "#dc2626") button.className = "hover-red";
+    else if (color === "#22c55e") button.className = "hover-green";
+    else button.className = "";
 
-  alertModal.style.display = "flex";
+    alertModal.style.display = "flex";
+  } catch (e) {
+    console.error("CRITICAL ERROR: Custom alert failed to render.", e);
+    console.error(
+      "Ensure these elements exist in your HTML:",
+      "#customAlert",
+      "#alertTitle",
+      "#alertMessage",
+      "#alertCloseBtn"
+    );
+  }
 }
 
-alertCloseBtn.addEventListener("click", () => {
-  alertModal.style.display = "none";
-});
+// Ensure event listener is properly attached
+if (alertCloseBtn) {
+  alertCloseBtn.addEventListener("click", () => {
+    alertModal.style.display = "none";
+  });
+}
 
 /**
  * Shows the specified form/step element and hides all others.
@@ -66,24 +79,21 @@ function showForm(formId) {
 
   formElements.forEach((element) => {
     element.style.display = element.id === formId ? "flex" : "none";
-  });
+  }); // If we are showing the review details, the back button should go to the subject form
 
-  // If we are showing the review details, the back button should go to the subject form
   if (formId === "reviewalldetails") {
     const backButton = document.querySelector("#reviewalldetails .btn-close");
     const lastSubjectFormId =
       Array.from(document.querySelectorAll(".enrollment-popup")).find(
         (f) => f.dataset.for === formData.course
-      )?.id || "admissionForm";
+      )?.id || "admissionForm"; // If a back button exists, set its onclick to go to the specific Step 2 form.
 
-    // If a back button exists, set its onclick to go to the specific Step 2 form.
     if (backButton) {
       backButton.onclick = () =>
         closePopup("reviewalldetails", lastSubjectFormId);
     }
-  }
+  } // Determine the current step index
 
-  // Determine the current step index
   let step = 1;
   if (formId.startsWith("subjectenroll") && formId !== "reviewalldetails") {
     step = 2;
@@ -127,9 +137,8 @@ function updateProgressBar(step) {
  */
 function closePopup(currentFormId, targetFormId = "admissionForm") {
   // 1. Hide the current form/div
-  document.getElementById(currentFormId).style.display = "none";
+  document.getElementById(currentFormId).style.display = "none"; // 2. Show the target form (defaults to Step 1)
 
-  // 2. Show the target form (defaults to Step 1)
   showForm(targetFormId);
 }
 
@@ -168,14 +177,12 @@ if (reopenTermsBtn) {
 // --- STEP 1 HANDLER (Personal Info & Course) ---
 
 mainForm.addEventListener("submit", function (event) {
-  event.preventDefault();
+  event.preventDefault(); // 1. Save Personal Data
 
-  // 1. Save Personal Data
   const data = new FormData(this);
   formData.personal = Object.fromEntries(data.entries());
-  formData.course = formData.personal.course;
+  formData.course = formData.personal.course; // 2. Determine and show the correct Step 2 form
 
-  // 2. Determine and show the correct Step 2 form
   const selectedCourse = formData.course;
   const targetPopup = document.querySelector(
     `.enrollment-popup[data-for="${selectedCourse}"]`
@@ -217,15 +224,12 @@ document.querySelectorAll(".enrollment-popup").forEach((form) => {
           "#dc2626"
         );
         return;
-      }
+      } // 1. Save Subjects
 
-      // 1. Save Subjects
-      formData.subjects = selectedSubjects;
+      formData.subjects = selectedSubjects; // 2. Go to Step 3 (Review)
 
-      // 2. Go to Step 3 (Review)
-      showForm("reviewalldetails");
+      showForm("reviewalldetails"); // 3. Render the review details
 
-      // 3. Render the review details
       renderReviewDetails(formData);
     });
   }
@@ -234,45 +238,45 @@ document.querySelectorAll(".enrollment-popup").forEach((form) => {
 // --- STEP 3 RENDERER (Review) ---
 
 function renderReviewDetails(data) {
-  const tableContainer = document.querySelector("#reviewalldetails table");
+  const tableContainer = document.querySelector("#reviewalldetails table"); // Helper to map course codes to full names
 
-  // Helper to map course codes to full names
   const courseMap = {
     indtech: "BS Industrial Technology (BSIndTech)",
     hospitalitymanagement: "BS Hospitality Management (BSHM)",
     secondaryeduc: "BS Secondary Education (BSED)",
   };
-  const courseFullName = courseMap[data.course] || data.course || "N/A";
+  const courseFullName = courseMap[data.course] || data.course || "N/A"; // Function to generate a table row
 
-  // Function to generate a table row
   const tr = (label, value) => `
-                <tr>
-                    <td style="font-weight: 600; width: 40%;">${label}</td>
-                    <td>${value}</td>
-                </tr>
-            `;
+                  <tr>
+                      <td style="font-weight: 600; width: 40%;">${label}</td>
+                      <td>${value}</td>
+                  </tr>
+              `; // Function to generate a section header
 
-  // Function to generate a section header
   const sectionHeader = (title) => `
-                <tr><td colspan="2" class="section-header">${title}</td></tr>
-            `;
+                  <tr><td colspan="2" class="section-header">${title}</td></tr>
+              `; // ⭐️ NEW: Screenshot instruction text
+  const screenshotInstruction = `
+      <p style="margin-bottom: 1rem; color: #dc2626; font-weight: 600; font-size: 0.95rem;">
+        🚨 Important: Please take a screenshot of this page for your records before submitting!
+      </p>
+    `;
 
   let tableHtml = `
-                <thead>
-                    <tr><th colspan="2">Application Review</th></tr>
-                </thead>
-                <tbody>
-            `;
+                  <thead>
+                      <tr><th colspan="2">Application Review</th></tr>
+                  </thead>
+                  <tbody>
+              `; // 1. Personal Information Section
 
-  // 1. Personal Information Section
   tableHtml += sectionHeader("Personal Information");
   tableHtml += tr("Full Name", data.personal.fullName || "N/A");
   tableHtml += tr("Birthdate", data.personal.birthdate || "N/A");
   tableHtml += tr("Gender", data.personal.gender || "N/A");
   tableHtml += tr("Email", data.personal.email || "N/A");
-  tableHtml += tr("Phone Number", data.personal.phone || "N/A");
+  tableHtml += tr("Phone Number", data.personal.phone || "N/A"); // 2. Course and Subject Enrollment Section
 
-  // 2. Course and Subject Enrollment Section
   tableHtml += sectionHeader("Course & Subject Enrollment");
   tableHtml += tr("Selected Course", courseFullName);
 
@@ -286,32 +290,65 @@ function renderReviewDetails(data) {
   tableHtml += tr("Enrolled Subjects", subjectsList);
 
   tableHtml += `
-                </tbody>
-                <tfoot>
-                    <tr>
-                        <td colspan="2" style="padding: 1.5rem; text-align: center; background-color: #f0f0f0;">
-                            <button id="finalSubmit" class="bg-green hover-green" style="padding: 15px 30px; font-size: 1.2rem;">
-                                Final Submit Application
-                            </button>
-                        </td>
-                    </tr>
-                </tfoot>
-            `;
+                  </tbody>
+                  <tfoot>
+                      <tr>
+                          <td colspan="2" style="padding: 1.5rem; text-align: center; background-color: #f0f0f0;">
+                              ${screenshotInstruction} 
+                              <button id="finalSubmit" class="bg-green hover-green" style="padding: 15px 30px; font-size: 1.2rem;">
+                                  Final Submit Application
+                              </button>
+                          </td>
+                      </tr>
+                  </tfoot>
+              `;
 
   tableContainer.innerHTML = tableHtml;
 
-  // Add final submit listener
-  document.getElementById("finalSubmit").addEventListener("click", () => {
-    alertMessage(
-      "Application Submitted!",
-      "Thank you! Your application for " +
-        courseFullName +
-        " has been submitted successfully for review.",
-      "#22c55e"
-    );
-    document.getElementById("finalSubmit").disabled = true;
-    document.getElementById("finalSubmit").textContent =
-      "Application Submitted";
+  const submitBtn = document.getElementById("finalSubmit"); // This is the FIXED section for your final submit handler // Replace the finalSubmit button click handler in your form.js
+
+  submitBtn.addEventListener("click", () => {
+    // 1. Change UI to Loading
+    submitBtn.disabled = true;
+    submitBtn.textContent = "Sending to Database..."; // 2. Send to Port 3000
+
+    fetch("http://localhost:3000/save-application", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(formData),
+    })
+      .then((response) => response.json())
+      .then((result) => {
+        console.log("Server Response:", result);
+
+        if (result.message === "Application Saved Successfully!") {
+          // SUCCESS!
+          submitBtn.textContent = "Submitted ✓";
+
+          alertMessage(
+            "Success!",
+            "Your application has been saved successfully! You will now be redirected.",
+            "#22c55e"
+          ); // Optional: Redirect after 2 seconds
+
+          setTimeout(() => {
+            // ⭐ MODIFICATION HERE: Redirect to index.html
+            window.location.href = "index.html";
+          }, 2000);
+        } else {
+          throw new Error("Unexpected server response");
+        }
+      })
+      .catch((err) => {
+        console.error("Application submission failed:", err);
+        alertMessage(
+          "Submission Failed",
+          "There was a server or database error. Check your backend terminal for details.",
+          "#dc2626"
+        );
+        submitBtn.disabled = false;
+        submitBtn.textContent = "Final Submit Application";
+      });
   });
 }
 

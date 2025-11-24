@@ -1,3 +1,35 @@
+import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+import {
+  getAuth,
+  signInAnonymously,
+  signInWithCustomToken,
+  onAuthStateChanged,
+} from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+import {
+  getFirestore,
+  collection,
+  addDoc,
+  setLogLevel,
+} from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+// Enable Firestore Debug Logging
+setLogLevel("Debug");
+
+// --- GLOBAL FIREBASE VARIABLES (Initializers) ---
+let db;
+let auth;
+let appId;
+let userId;
+
+const firebaseConfig =
+  typeof __firebase_config !== "undefined"
+    ? JSON.parse(__firebase_config)
+    : null;
+const initialAuthToken =
+  typeof __initial_auth_token !== "undefined" ? __initial_auth_token : null;
+appId = typeof __app_id !== "undefined" ? __app_id : "default-app-id";
+
+// --- APPLICATION DATA ---
 let formData = {
   personal: {},
   course: "",
@@ -14,6 +46,8 @@ const courseSelect = document.getElementById("course");
 const declineMessage = document.getElementById("declineMessage");
 const reopenTermsBtn = document.getElementById("reopenTerms");
 const asideForm = document.getElementById("form-aside");
+const authStatusEl = document.getElementById("auth-status");
+const userIdDisplayEl = document.getElementById("user-id-display");
 
 // Progress Bar Elements
 const step1Circle = document.getElementById("step1-circle");
@@ -42,10 +76,16 @@ function alertMessage(title, message, color = "#2563eb") {
   button.style.backgroundColor = color;
 
   // Set hover style (simple approach for inline styling)
-  if (color === "#2563eb") button.className = "hover-blue";
-  else if (color === "#dc2626") button.className = "hover-red";
-  else if (color === "#22c55e") button.className = "hover-green";
-  else button.className = "";
+  if (color === "#2563eb")
+    button.className =
+      "bg-blue hover-blue text-white py-2 px-6 rounded-lg font-semibold transition";
+  else if (color === "#dc2626")
+    button.className =
+      "bg-red hover-red text-white py-2 px-6 rounded-lg font-semibold transition";
+  else if (color === "#22c55e")
+    button.className =
+      "bg-green hover-green text-white py-2 px-6 rounded-lg font-semibold transition";
+  else button.className = "btn-primary";
 
   alertModal.style.display = "flex";
 }
@@ -133,6 +173,60 @@ function closePopup(currentFormId, targetFormId = "admissionForm") {
   showForm(targetFormId);
 }
 
+// --- FIREBASE SUBMISSION LOGIC (NEW) ---
+
+/**
+ * Submits the final application data to Firestore.
+ */
+async function submitApplicationToFirestore() {
+  if (!db || !userId) {
+    alertMessage(
+      "Error",
+      "Database connection not ready. Please wait a moment and try again.",
+      "#dc2626"
+    );
+    return;
+  }
+
+  const collectionPath = `artifacts/${appId}/users/${userId}/admissions`;
+  const collectionRef = collection(db, collectionPath);
+  const submitButton = document.getElementById("finalSubmit");
+
+  try {
+    submitButton.disabled = true;
+    submitButton.textContent = "Submitting...";
+
+    // Create a clean object for submission
+    const submissionData = {
+      ...formData,
+      submissionDate: new Date().toISOString(),
+      status: "Submitted",
+    };
+
+    const docRef = await addDoc(collectionRef, submissionData);
+
+    alertMessage(
+      "Application Submitted!",
+      "Thank you! Your application for " +
+        (formData.course || "a course") +
+        " has been submitted successfully to the database (Document ID: " +
+        docRef.id +
+        ").",
+      "#22c55e"
+    );
+    submitButton.textContent = "Application Submitted";
+  } catch (error) {
+    console.error("Error writing document to Firestore: ", error);
+    alertMessage(
+      "Submission Failed",
+      "There was an error submitting your application. Please check the console for details.",
+      "#dc2626"
+    );
+    submitButton.disabled = false;
+    submitButton.textContent = "Final Submit Application";
+  }
+}
+
 // --- TERMS & CONDITIONS LOGIC ---
 
 if (acceptBtn) {
@@ -146,7 +240,7 @@ if (acceptBtn) {
 if (declineBtn) {
   declineBtn.addEventListener("click", function () {
     tcContentBox.style.display = "none";
-    declineMessage.style.display = "flex"; // Show persistent decline message
+    declineMessage.style.display = "block"; // Show persistent decline message
     mainForm.style.display = "none";
     asideForm.style.display = "none";
     alertMessage(
@@ -300,28 +394,78 @@ function renderReviewDetails(data) {
 
   tableContainer.innerHTML = tableHtml;
 
-  // Add final submit listener
-  document.getElementById("finalSubmit").addEventListener("click", () => {
-    alertMessage(
-      "Application Submitted!",
-      "Thank you! Your application for " +
-        courseFullName +
-        " has been submitted successfully for review.",
-      "#22c55e"
-    );
-    document.getElementById("finalSubmit").disabled = true;
-    document.getElementById("finalSubmit").textContent =
-      "Application Submitted";
-  });
+  // Add final submit listener - MODIFIED to call the Firestore function
+  document
+    .getElementById("finalSubmit")
+    .addEventListener("click", submitApplicationToFirestore);
 }
 
 // --- INITIALIZATION ---
-window.onload = function () {
-  // Ensure the T&C modal is visible first
-  termsContainer.style.display = "flex";
-  tcContentBox.style.display = "block";
-  declineMessage.style.display = "none";
-  mainForm.style.display = "none";
-  asideForm.style.display = "none";
-  updateProgressBar(0); // Set all steps to pending initially
-};
+
+async function initializeAppAndAuth() {
+  if (!firebaseConfig) {
+    console.error(
+      "Firebase config not available. Cannot initialize Firestore."
+    );
+    authStatusEl.textContent = "Error: Firebase Config Missing";
+    return;
+  }
+
+  try {
+    const app = initializeApp(firebaseConfig);
+    db = getFirestore(app);
+    auth = getAuth(app);
+    authStatusEl.textContent = "Connecting...";
+
+    // Sign in with custom token if available, otherwise sign in anonymously
+    if (initialAuthToken) {
+      await signInWithCustomToken(auth, initialAuthToken);
+    } else {
+      await signInAnonymously(auth);
+    }
+
+    onAuthStateChanged(auth, (user) => {
+      if (user) {
+        userId = user.uid;
+        authStatusEl.textContent = "Authenticated";
+        userIdDisplayEl.textContent = `UID: ${userId}`;
+        console.log("Firebase initialized and user authenticated:", userId);
+
+        // Once authenticated, proceed with showing the T&C flow
+        termsContainer.style.display = "flex";
+        tcContentBox.style.display = "block";
+        declineMessage.style.display = "none";
+        mainForm.style.display = "none";
+        asideForm.style.display = "none";
+        updateProgressBar(0); // Set all steps to pending initially
+      } else {
+        authStatusEl.textContent = "Not Authenticated";
+        // Fallback in case of anonymous sign-in failure (though it shouldn't happen)
+        userId = crypto.randomUUID();
+        userIdDisplayEl.textContent = `Temp ID: ${userId}`;
+      }
+    });
+  } catch (error) {
+    console.error("Firebase initialization or authentication failed:", error);
+    authStatusEl.textContent = "Authentication Failed";
+    // Fallback to a temporary ID if auth fails completely
+    userId = crypto.randomUUID();
+    userIdDisplayEl.textContent = `Temp ID: ${userId}`;
+
+    // Still proceed with the UI flow even if persistence fails, but alert the user.
+    alertMessage(
+      "Setup Error",
+      "Failed to connect to the database. Application data will not be saved.",
+      "#dc2626"
+    );
+
+    termsContainer.style.display = "flex";
+    tcContentBox.style.display = "block";
+    declineMessage.style.display = "none";
+    mainForm.style.display = "none";
+    asideForm.style.display = "none";
+    updateProgressBar(0);
+  }
+}
+
+window.onload = initializeAppAndAuth;
