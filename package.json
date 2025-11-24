@@ -4,7 +4,7 @@
   "description": "Admission ticket validation system",
   "main": "server/server.js",
   "scripts": {
-    "start": "concurrently \"node server/server.js\" \"node server/admin/ticketgenerator.js\"",
+    "start": "concurrently \"node server/server.js\" \"node server/admin/ticketgenerator.js\" node server/dbconnection.js\"",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
