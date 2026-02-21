@@ -248,27 +248,27 @@ function renderReviewDetails(data) {
   const courseFullName = courseMap[data.course] || data.course || "N/A"; // Function to generate a table row
 
   const tr = (label, value) => `
-                  <tr>
-                      <td style="font-weight: 600; width: 40%;">${label}</td>
-                      <td>${value}</td>
-                  </tr>
-              `; // Function to generate a section header
+   <tr>
+   <td style="font-weight: 600; width: 40%;">${label}</td>
+   <td>${value}</td>
+   </tr>
+  `; // Function to generate a section header
 
   const sectionHeader = (title) => `
-                  <tr><td colspan="2" class="section-header">${title}</td></tr>
-              `; // ⭐️ NEW: Screenshot instruction text
+   <tr><td colspan="2" class="section-header">${title}</td></tr>
+  `; // ⭐️ NEW: Screenshot instruction text
   const screenshotInstruction = `
-      <p style="margin-bottom: 1rem; color: #dc2626; font-weight: 600; font-size: 0.95rem;">
-        🚨 Important: Please take a screenshot of this page for your records before submitting!
-      </p>
-    `;
+  <p style="margin-bottom: 1rem; color: #dc2626; font-weight: 600; font-size: 0.95rem;">
+ 🚨 Important: Please take a screenshot of this page for your records before submitting!
+  </p>
+ `;
 
   let tableHtml = `
-                  <thead>
-                      <tr><th colspan="2">Application Review</th></tr>
-                  </thead>
-                  <tbody>
-              `; // 1. Personal Information Section
+   <thead>
+   <tr><th colspan="2">Application Review</th></tr>
+   </thead>
+   <tbody>
+  `; // 1. Personal Information Section
 
   tableHtml += sectionHeader("Personal Information");
   tableHtml += tr("Full Name", data.personal.fullName || "N/A");
@@ -290,18 +290,18 @@ function renderReviewDetails(data) {
   tableHtml += tr("Enrolled Subjects", subjectsList);
 
   tableHtml += `
-                  </tbody>
-                  <tfoot>
-                      <tr>
-                          <td colspan="2" style="padding: 1.5rem; text-align: center; background-color: #f0f0f0;">
-                              ${screenshotInstruction} 
-                              <button id="finalSubmit" class="bg-green hover-green" style="padding: 15px 30px; font-size: 1.2rem;">
-                                  Final Submit Application
-                              </button>
-                          </td>
-                      </tr>
-                  </tfoot>
-              `;
+   </tbody>
+   <tfoot>
+   <tr>
+   <td colspan="2" style="padding: 1.5rem; text-align: center; background-color: #f0f0f0;">
+   ${screenshotInstruction} 
+   <button id="finalSubmit" class="bg-green hover-green" style="padding: 15px 30px; font-size: 1.2rem;">
+    Final Submit Application
+   </button>
+   </td>
+   </tr>
+   </tfoot>
+  `;
 
   tableContainer.innerHTML = tableHtml;
 
